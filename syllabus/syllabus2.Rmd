@@ -1,0 +1,183 @@
+---
+title: | 
+  | Course Manual
+  | Introduction to Applied Data Science
+  | 2023-2024
+author: |
+  | Bas Machielsen
+  | a.h.machielsen@uu.nl
+date: October 2023
+urlcolor: purple
+linkcolor: purple
+output: 
+  pdf_document:
+    includes:
+      in_header: "preamble.tex"
+---
+
+## Course Description
+
+```{r, echo = FALSE, message = FALSE}
+# administration stuff
+# assignment hand in dates
+library(lubridate)
+date_first_exam <- "21-05"
+date_second_exam <- "27-06"
+
+# lecture dates
+date1 <- "23-04"
+date2 <- "30-04"
+date3 <- "07-05"
+date4 <- "14-05"
+date5 <- "28-05"
+date6 <- "04-06"
+date7 <- "11-06"
+date8 <- "18-06"
+
+# working group dates
+wdate1 <- "25-04"
+wdate2 <- "02-05"
+wdate3 <- "16-05"
+wdate4 <- "23-05"
+wdate5 <- "30-05"
+wdate6 <- "06-06"
+wdate7 <- "13-06"
+wdate8 <- "20-06"
+
+officehours <- "Tuesday 12:00 - 13:00 - (ASH 1.12b)"
+```
+
+This course will introduce you to the modern data science toolkit. Data Science is an emergent discipline growing faster and faster due to the large amounts of data that we have at our disposal, and increases in computational power and flexibility. In the words of [Vanderplas](https://jakevdp.github.io/PythonDataScienceHandbook/00.00-preface.html), data science comprises:
+
+> .. three distinct and overlapping areas: the skills of a statistician who knows how to model and summarize datasets (which are growing ever larger); the skills of a computer scientist who can design and use algorithms to efficiently store, process, and visualize this data; and the domain expertise - what we might think of as "classical" training in a subject—necessary both to formulate the right questions and to put their answers in context.
+
+The course will provide a **practical introduction** to the tools and techniques that are at the heart of modern data science. We will focus on aspects such as:
+
+  - **Data acquisition** by means of e.g. text mining, querying relational databases, and web scraping. 
+  
+  - **Data wrangling and cleaning** to turn messy, disorganized data into tidy data that can be analyzed. 
+
+  - Kinds of data and corresponding techniques of data analysis that are traditionally excluded from econometrics courses such as **text data, spatial data, and network data**
+  
+  - Developing an effective work flow by working and collaborating with **RMarkdown**.
+  
+The aim of the course is to be _broad_ rather than _deep_, giving a broad overview of the tools available. More in-depth courses on programming, unsupervised and supervised learning, and econometrics will be given in later courses. This course aims to familiarize you with the _basic_ aspects of these techniques, and most importantly, with the capability to **independently collect, acquire and analyze data**. 
+
+Coming back to the _domain-specific_ expertise: most of the applications and assignments in this course ask you to answer concrete economic questions. The philosophy behind these assignments is that you answer questions from the ground up, just like researchers do, and just like you will have to do at a later stage of your study. As such, this course also gives you an introduction into what economists do when they conduct _empirical research_. 
+  
+In this course, we develop these skills using the R programming language, which has many advantages for Data Science. We think R is an easy and logical first programming language to learn. R is a free open-source programming language with a large community of data scientists, economists and statisticians working together to develop state-of-the-art algorithms and packages. There is a large market of companies and universities that require knowledge of R. It is also easy to switch from R to other programming languages such as Python, Julia or Matlab. 
+
+## Format 
+
+This course features one weekly lecture (2 contact hours), and 1 tutorial (2 contact hours), and office hours, during which students can ask questions on `r officehours`. You can also ask questions by e-mail. 
+
+## Overview
+
+```{r, echo=FALSE, message=FALSE}
+library(tidyverse)
+
+info <- tribble(~ "", ~ "", 
+        "Code", "ECB1ID",
+        "Period", "4",
+        "Timeslot", "B (Tuesday Morning, Thursday Afternoon)", 
+        "Level", "1",
+        "ECTS", "7.5", 
+        "Course Type", "Optional Minor Course",
+        "Programme", "BSc Economics & Business Economics",
+        "Department", "U.S.E., Applied Economics",
+        "Coordinator/Lecturer", "Bas Machielsen",
+        "Tutorial Teachers", "Tina Dulam",
+        " ", "Jozef Patrnciak",
+        " ", "Bas Machielsen",
+        "Language", "English")
+
+knitr::kable(info)
+
+```
+
+## Course Materials
+
+You don't need to buy any books for this course, and the slides are more or less self-contained. We do use a couple of resources that you should read as a preparation for lectures/assignments. These are references materials that are regularly updated following the newest changes in the R community. The most important study book is _R for Data Science_. The first chapters in this book serve as a good complement to the first 4/5 lectures. The next three books, _Text Mining with R_, _Spatial Analysis with R_ and the _RMarkdown Cookbook_ are optional companions to the remaining lectures. The rest of the material is purely supplementary.
+
+  - [R for Data Science](https://r4ds.had.co.nz/): This book will teach you how to do data science with R: You’ll learn how to get your data into R, get it into the most useful structure, transform it, visualize it and model it.
+  - [Text Mining with R](https://www.tidytextmining.com/). This book introduces the tidytext, a package which introduces the methods of data wrangling and visualization to text. 
+  - [Spatial Analysis with R](https://rspatial.org/index.html). This book introduces basic spatial data formats and corresponding analyses. 
+  - [RMarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/), which is designed to provide a range of examples on how to extend the functionality of your R Markdown documents. 
+  - [Happy Git With R](https://happygitwithr.com/): Happy Git provides opinionated instructions on how to install Git and get it working smoothly with GitHub, in the shell and in the RStudio IDE. It also contains a few key workflows that cover your most common tasks, and how to integrate Git and GitHub into your daily work with R and R Markdown.
+  - [Data Science for Economists Course Repo](https://github.com/uo-ec607/lectures) [and Book (in Progress)](https://grantmcdermott.com/ds4e/spatial-analysis.html): More advanced lectures and a book aimed at Economics PhD students, which some of this course's material is based on.
+  - [Advanced Data Analytics in Economics](https://github.com/msu-econ-data-analytics/course-materials) by Nick Hagerty. A repository containing lecture slides for a PhD level course, which some of this course's material is based on.
+  - [Python for Data Analysis](https://wesmckinney.com/book/): this is a similar book to **R For Data Science**, but written for Python users. 
+  - [Introduction to Statistical Learning](https://hastie.su.domains/ISLR2/ISLRv2_website.pdf): The standard textbook introduction to Machine Learning methods
+  - [Geocomputation with R](https://bookdown.org/robinlovelace/geocompr/)
+  
+
+## Lecture Schedule
+
+```{r, echo = FALSE}
+syllabus <- tribble(
+  ~ "Event", ~"Date", ~"Subject",
+    "Lecture 1", date1, "Introduction to Data Science", 
+    "Lecture 2", date2, "Introduction to R & Programming",
+    "Lecture 3", date3, "Getting Data: API's and Databases",
+    "Lecture 4", date4, "Getting Data: Web Scraping",
+    "Lecture 5", date5, "Transforming and Cleaning Data",
+    "Lecture 6", date6, "Spatial & Network Data",
+    "Lecture 7", date7, "Text as Data and Mining",
+    "Lecture 8", date8, "(Tentative) Data Science Project", 
+)
+
+knitr::kable(syllabus,  booktabs=TRUE)
+
+```
+
+## Tutorial Schedule
+
+```{r, echo = FALSE}
+syllabus <- tribble(
+  ~ "Event", ~"Date", ~"Subject",
+    "Lecture 1", wdate1, "Introduction to Data Science", 
+    "Lecture 2", wdate2, "Introduction to R & Programming",
+    "Lecture 3", wdate3, "Getting Data: API's and Databases",
+    "Lecture 4", wdate4, "Getting Data: Web Scraping",
+    "Lecture 5", wdate5, "Transforming and Cleaning Data",
+    "Lecture 6", wdate6, "Spatial & Network Data",
+    "Lecture 7", wdate7, "Text as Data and Mining",
+    "Lecture 8", wdate8, "Mock Exam", 
+)
+
+knitr::kable(syllabus,  booktabs=TRUE)
+
+```
+
+
+## Asssessment
+
+This course has a mid-term exam and a final exam. 
+
+```{r echo = FALSE}
+assignments <- tribble(
+  ~"Assessment", ~"Date",
+  "Mid-term", date_first_exam, 
+  "Final Exam", date_second_exam
+)
+
+knitr::kable(assignments, booktabs=TRUE) %>% kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+```
+
+The mid-term will count for 40% of the final grade, the final exam for the remaining 60%. Both should be completed as part of the effort requirement. The answers to the assessments will be posted on Blackboard and perusal sessions will be organized. Both will be a BYOD (Bring Your Own Device) exam and will feature questions and answers in the format of .Rmd (RMarkdown) documents. If the final grade is below $< 5.50$ but $\geq 4$, there is a possibility of a resit, but only if the effort requirement is satisfied. No resit opportunity is possible for people obtained grades higher than 5.50. 
+
+## Effort Requirement
+
+In order to meet the effort requirement for this course, students must attend at least 6 out of 8 tutorials. 
+  
+## Learning Objectives
+
+On effective completion of the course, students should:
+
+  - Understand the basics of R programming in a data science context
+  - Be able to independently acquire data from a variety of sources
+  - Understand and be able to analyze non-standard formats of data such as text and spatial data
+  - Be able to integrate code in reporting, thereby writing reproducible code and analysis
+  
+

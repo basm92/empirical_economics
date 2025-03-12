@@ -1,0 +1,118 @@
+---
+title: | 
+  | Course Manual
+  | Empirical Economics
+  | 2025-2026
+author: |
+  | Bas Machielsen
+  | a.h.machielsen@uu.nl
+date: September 2025
+urlcolor: purple
+linkcolor: purple
+output: 
+  pdf_document:
+    includes:
+      in_header: "preamble.tex"
+---
+
+
+```{r, echo = FALSE, message = FALSE}
+# administration stuff
+# assignment hand in dates
+library(lubridate)
+date_midterm <- "21-05"
+date_endterm <- "27-06"
+
+date_midterm_retake <- "TBA"
+date_endterm_retake <- "TBA"
+
+# lecture dates
+date1 <- "23-04"
+date2 <- "30-04"
+date3 <- "07-05"
+date4 <- "14-05"
+date5 <- "28-05"
+date6 <- "04-06"
+date7 <- "11-06"
+date8 <- "18-06"
+
+officehours <- "Tuesday 12:00 - 13:00 - (ASH 1.12b)"
+```
+
+## Course Overview
+
+```{r, echo=FALSE, message=FALSE}
+library(tidyverse); library(tinytable)
+
+info <- tribble(~ "", ~ "", 
+        "Code", "ESEMEE",
+        "Period", "1",
+        "Timeslot", "B/D (Tuesday Morning, Thursday Afternoon)", 
+        "ECTS", "5", 
+        "Course Type", "MSc Course",
+        "Programme", "All Utrecht University School of Economics MSc Programs",
+        "Coordinator/Lecturer", "Bas Machielsen",
+        "Tutorial Teachers", "TBA",
+        " ", "TBA",
+        " ", "Bas Machielsen",
+        "Language", "English",
+        "Entry Requirements", "Knowledge of Statistics and Econometrics (Bachelor level); alternatively, attendance at the UU Summer School."
+)
+
+tinytable::tt(info, width=c(0.2, 0.5)) |>
+  theme_tt("placement", latex_float = "htbp")
+
+```
+
+## Course Planning
+
+[Insert Table with Lecture Schedule].
+
+For tutorials, please refer to [MyTimeTable](mytimetable.uu.nl). Log-in with your student ID, click Add Timetable, search for "Empirical Economics", click "Add timetables", and select your corresponding tutorial group (e.g. USEMEE-2025-V-1-TUTORIAL-1-05). Optionally, you can also add the lectures and examinations. 
+
+## Course Description
+
+This course aims to provide students with an understanding of basic econometric methods, and with knowledge how to apply them. These methods allows students to understand the modern empirical economic literature and to independently analyze data to answer a research question. The course starts with a recapitulation of the basic aspects of statistics and the mechanics behind the linear regression model, and proceeds to focus on frequently-used techniques and settings in the empirical economics literature, such as panel data, difference-in-differences, instrumental variables and binary outcome models. Although the course has a theoretical aspect, the main questions in this course are related to why we apply a particular technique and how to interpret the econometric outcome. 
+
+The course also focuses on research questions related to the different economic tracks of the USE Masters. To support this approach, in the tutorials, students will sometimes work with academic papers demonstrating the application of the techniques. 
+
+
+## Learning Objectives
+
+- Apply econometrics to analyze research questions using empirical data, and justify the chosen approach.
+
+- Use basic statistics and mathematics to understand and derive the basic properties of several econometric models.
+
+- Interpret and critically evaluate quantitative empirical studies to provide policy recommendations.
+
+
+## Materials 
+
+- **Required material**: lecture slides & tutorial slides
+  - Recommended (but not required) material: Wooldridge, J.M. (2014), Introduction to Econometrics, EMEA Edition, ISBN 987 1 4080 9375 7.
+  - Recommended (but not required) material: Cunningham, S. (2024), Causal Inference, The Mixtape. Available [here](https://mixtape.scunning.com/).
+  - Recommended (but not required) material: Adams, C.P. (2024), Learning Microeconometrics with R. Available [here](https://sites.google.com/view/microeconometricswithr/bookdown).
+  - Recommended (but not required) material: Huntington-Klein, N. (2024), The Effect: An Introduction to Research Design and Causality. Available [here](https://theeffectbook.net/index.html).
+  
+
+## Format
+
+- Each week, 1 lecture and 1 tutorial. These are two-hour sessions on campus. Whereas the lecture focuses on more theoretical aspects, in the tutorials, students will apply the techniques and concepts learned during the lecture. The tutorials also allow you to ask questions about the lecture material.
+
+- **Changing tutorial groups**: each student is assigned to a tutorial group according to his/her master’s specialization. It is not recommended to switch tutorials. If this is necessary under special circumstances, please contact [Studiepunt.Economie](mailto:studiepunt.economie@uu.nl). 
+
+
+## Examination
+
+- The course will have a **mid-term exam** (40%) and an **end-term exam** (60% of the grade). Both of these will tentatively be conducted on Brightspace, but in person. Utrecht University will provide Chromebooks. The exam is closed book, you can bring a pen/pencil and a calculator. Scrap paper will be provided. 
+- A mock mid-term and end-term exam will be provided to make you acquainted with the format. 
+- In case of illness on the day of the exam, please contact the study advisor immediately: [studyadvisor.use@uu.nl](mailto:studyadvisor.use@uu.nl).
+
+- **Retake policy**: There is one retake. If you have a $4 \leq \text{Grade} \leq 5.5$, you are eligible for the retake. 
+
+- **Inspection policy**: there will be an inspection organized by the course coordinator following the mid-term and end-term exams. These will be announced on Brightspace. 
+
+- **Grading**: Your final grade will be your raw grade rounded to the nearest $1,1.5,2,2.5,3,\dots, 10$. 
+
+- **Last course provision**: A written exam (similar to the retake exam) takes place after period 4. Students who passed all courses (including thesis) except Empirical Economics can request the [Board of Examiners](use.examencommissie@uu.nl) for this last course provision.
+
