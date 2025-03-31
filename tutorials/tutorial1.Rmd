@@ -1,0 +1,585 @@
+---
+title: "Empirical Economics - Week 1"
+subtitle: "Statistics"
+format: revealjs
+aspectratio: 169
+highlight-style: github
+execute:
+  echo: true
+css: style.css
+editor: visual
+---
+
+```{r setup}
+#| echo: false
+library(reticulate); library(modelsummary); library(tinytable)
+use_condaenv('base')
+py_require("pandas")
+py_require("numpy>2")
+py_require("seaborn")
+py_require("statsmodels.api")
+py_require("statsmodels.formula.api")
+py_require('pyfixest')
+```
+
+# Introduction
+
+## Set-Up
+
+- Empirical Economics has **lectures** and **tutorials**
+- Both are important for the exam:
+  - Lectures feature theoretical material
+  - Tutorials recapitulate theoretical material
+  
+- These tutorials also feature **exercises**, sometimes with **code** (R/Python)
+  - Exercises help you understand the sometimes abstract theoretical materials
+  - Code and coding exercises will allow you to practice with the material and obtain practical programming experience
+  
+- In total, we have **8** tutorials, one each week
+
+## Contact Points
+
+- Course coordinator:
+  - Bas Machielsen (a.h.machielsen@uu.nl)
+  
+- Tutorial teachers:
+  - Teacher 1: (x@uu.nl)
+  - Teacher 2: (a@uu.nl)
+  - Teacher 3: (z@uu.nl)
+  
+- Information about course organization: See course manual (Brightspace)
+
+## This Week
+
+- Focus on undergraduate econometrics
+- In particular, we'll focus on **statistics, probability and the linear model**
+- The linear model is an important building block for more complicated models later on in the course
+  - Hence it is important to understand its mechanics and assumptions well
+- We need statistics and probability to evaluate these assumptions
+
+## Econometrics
+
+- Econometrics = using data to measure causal effects
+
+- Economic theory suggests important relationships (cause-and-effect), often with policy implications.
+
+  - However, there is only so much we can learn from theorizing:we need empirical evidence to test our models.
+  
+- Conclusion: we need to test these relationships in the real world, using data
+ 
+
+## Research Questions
+
+- Examples of RQs that econometrics can help answer:
+
+  - By how much does access to high-speed internet increase entrepreneurship in rural areas?
+
+  - What is the effect of paid parental leave policies on women's long-term labor force participation?
+
+  - What is the impact of sugar taxes on obesity rates and purchasing behavior?
+
+  - Does stricter gun control legislation reduce violent crime rates?
+
+  - What is the effect of trade tariffs on domestic manufacturing employment?
+  
+## The Experimental Ideal
+
+- Ideally, we would like an experiment (randomization) to answer these questions
+
+  - Like in medicine: we need a _treatment group_ and a _control group_, which are similar in all characteristics
+  - Other than that the treatment group receives the treatment (a medicine) and the control group nothing (or a placebo)
+
+- Similarly, we would randomly give access to _high-speed internet_ to some individuals, not to others, and see if this helps promote entrepreneurship
+
+- What would an experiment look like allowing you to measure the impact of gun control legislation on violent crime rates? 
+
+- In real life, and also in your thesis, you will probably only have **observational data**, not experimental data
+
+## Aims of Econometrics
+
+- However, with the right tools and clever use of the data, we can still make inference about a causal relationship
+  - Provided we use a sensible model with appropriate assumptions
+
+- Just running a regression model without thinking about, and justifying, its assumptions will get us nowhere
+
+- Tools like **statistics** and **probability** theory will allow us to _analyze_ models to determine whether we can indeed interpret our estimates causally
+  - Or alternatively, whether an estimator yields a more descriptive **correlation**
+  
+# Statistics Recap
+
+## Review of Statistics
+
+We are working towards estimating a multivariate (or multiple) population model of the form:
+$$
+Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} = \dots + \beta_k X_{ki} + \epsilon_i
+$$
+
+
+- This is called regression analysis - we discuss it in coming
+weeks
+-  To do so, we first revisit univariate analysis (summarizing one variable) and bivariate analysis (summarizing the relationship between 2 variables)
+- A starting point in your work is always a **research question**
+  - Example we take here: **is there a difference in starters' earnings between sociology and economics graduates?**
+  
+## Formulating Hypotheses
+
+- Example we take here: **is there a difference in starters' earnings between sociology and economics graduates?**
+
+- This leads us to formulate _hypotheses_:
+
+\begin{align}
+&H_0: \text{There is no difference in starting salaries} \newline
+&H_A: \text{There is a difference in starting salaries}
+\end{align}
+
+- We can rationalize, or find explanations for, the alternative hypothesis in **economic theory**:
+  - Differences in productivity/human capital accumulation
+  - Differences in job preferences
+  - Differences in non-market rewards
+  
+## Econometric Modeling
+
+- Before we start thinking about a regression model, we have to think about how our RQ relates to statistics:
+  - What is the random variable we set to explain?
+  - What is the population we are trying to infer something about?
+  
+- Usually, in econometrics, the outcome variable (in this case, earnings/salary) is seen as a **random** stochastic variable, which can depend on other, additional random or non-random variables
+
+- Once we have found out that and have collected data, we can numerically summarize the random variable (univariate analysis) 
+  - And analyse the relationship between the random variable and another random variable: bivariate (multivariate) regression
+analysis
+
+## Random Variables
+
+
+- **Random variable** $X=$ a variable that takes on different values $x_i$ with a given probability for each outcome ($Pr(X = x_i)$).  
+- Discrete r.v.: finite number of outcomes ("countable outcomes").  
+- Continuous r.v.: may take on any numerical value in an interval ("outcomes from a measuring process")
+
+
+## Population & probability density function  
+
+- **Population**: set of all possible outcomes of $X$ - we think of populations as infinitely large.  
+- **Probability density function (pdf)**: function containing the probabilities of different outcomes, denoted $f(x_i) = Pr(X = x_i)$.  
+  - Discrete pdf: pdf for countable outcomes.  
+  - Continuous pdf: pdf for non-countable outcomes.  
+  
+## Properties of pdf's
+
+- For a discrete r.v. $X$: 
+  - All outcomes of $X$ (denoted $x_i$ ) have a non-negative probability of occurring: $Pr(X = x_i)= \geq 0$ for $i = 1, 2, \dots N$
+  - The sum of all probabilities is equal to 1:$\sum_{i=1}^N Pr(X=x_i)= 1$ or $\sum_{i=1}^N f(x_i)=1$
+  
+- For a continuous r.v. $X$:
+    - All outcomes of $X$ (denoted $x_i$ ) have a non-negative probability of occurring: $f(x_i) \geq 0$ for all $i$
+    - The "sum" of all probabilities is equal to 1: $\int_{-\infty}^\infty f(x_i) dx_i = 1$
+
+## Expected Value
+
+- For a discrete random variable $X$, the **expected value** is $\mathbb{E}[X] = \mu_X = \sum_{i=1}^{N} Pr(X = x_i) \cdot x_i$
+
+- In words, the expected value of $X$ is its average value (i.e. the mean starting salary) in the population: calculated by weighting each value with the probability that it comes with. 
+  - Rules of calculation:
+    - $\mathbb{E}[c] = c$
+    - $\mathbb{E}[aX + b] = a \mathbb{E}[X] = b$
+    - $\mathbb{E}[X_1 + X_2] = \mathbb{E}[X_1] + \mathbb{E}[X_2]$
+    
+## Variance
+  
+\begin{align}
+Var(X) &= \mathbb{E}[(X - \mathbb{E}[X])^2] = \sum_{i=1}^N (x_i - \mu_x)^2 \mathbb{P}(X=x_i) \newline
+&= \mathbb{E}[X^2] - (\mathbb{E}[X])^2  = \mathbb{E}[X^2] - \mu_x^2
+\end{align}
+
+- The variance (denoted as $\sigma^2$) measures the spread or the dispersion of a pdf
+
+- The standard deviation (denoted $\sigma$ is the square root of the variance: 
+
+$$
+\sigma_X = \sqrt{Var(X)}
+$$
+
+## Variance Calculation Rules
+
+- $Var(c)=0$: if all graduates earn the same starting salary, there is no variability, i.e. the variance is 0
+- $Var(X+c) = Var(X)$: e.g. the variance of starting salaries when graduates all receive the same bonus $c$ on top of a random component $X$
+- $Var(cX)=c^2 Var(X)$: the variance changes quadratically when units of measurement change linearly. 
+- $Var (X_1 + X_2 ) = Var (X_1 ) + Var (X_2 ) + 2Cov (X_1 , X_2 )$: special case occurs when $X_1, X_2$ independent, then $Cov(X_1, X_2)=0$ and the variance of the sum equals the sum of the variances. 
+
+
+## Variance Example
+
+- Example (dice roll): 
+
+| $x_i$ | $\mu_X$ | $(x_i - \mu_X)$ | $(x_i - \mu_X)^2$ | $f(x_i)$ | $(x_i - \mu_X)^2 \cdot f(xi)$ |
+|----|----|----------|-----------|-------|-------------------|
+| 1  | 3.5 | -2.5     | 6.25      | 1/6   | 1.0417            |
+| 2  | 3.5 | -1.5     | 2.25      | 1/6   | 0.3750            |
+| 3  | 3.5 | -0.5     | 0.25      | 1/6   | 0.0417            |
+| 4  | 3.5 | 0.5      | 0.25      | 1/6   | 0.0417            |
+| 5  | 3.5 | 1.5      | 2.25      | 1/6   | 0.3750            |
+| 6  | 3.5 | 2.5      | 6.25      | 1/6   | 1.0417            |
+| **Total** | | | **17.5** | **1** | **2.9167** |
+
+Variance $\sigma^2_X = 2.92$, Standard Deviation $\sigma=\sqrt{2.92}=1.71$
+
+
+## Variance Demonstration
+
+:::{.panel-tabset} 
+
+## R - Low Var
+
+```{r}
+#| fig-height: 3
+data <- c(0, 1, 2, 5, 8, 9, 10)
+var(data)
+hist(data, breaks = seq(min(data)-0.5, max(data)+0.5, by=1))
+```
+
+
+## Python - Low Var
+
+```{python}
+#| fig-height: 2.5
+import numpy as np; import seaborn as sns
+
+data = [0, 1, 2, 5, 8, 9, 10]
+np.var(data)
+sns.histplot(data, discrete=True, shrink=0.8, edgecolor='black')
+```
+
+## R - High Var
+
+```{r}
+#| fig-height: 3
+data <- c(-90, 1, 2, 5, 8, 9, 100)
+hist(data, breaks = seq(min(data)-0.5, max(data)+0.5, by=1))
+```
+
+## Python - High Var
+
+```{python}
+#| fig-height: 3
+data = [-90, 1, 2, 5, 8, 9, 100]
+np.var(data)
+sns.histplot(data, discrete=True, shrink=0.8, edgecolor='black')
+```
+
+:::
+
+## Example: Univariate Stats in R/Python
+
+- Let us import a dataset with (hourly) wages, `WAGE1.DTA`, and calculate the expected value, variance and standard deviation:
+
+:::{.panel-tabset}
+
+## R
+
+```{r}
+library(haven)
+dataset <- read_dta("./datafiles/WAGE1.DTA")
+mean(dataset$wage)
+var(dataset$wage)
+sd(dataset$wage)
+```
+
+
+## Python
+
+```{python}
+import pandas as pd
+import numpy as np
+dataset = pd.read_stata("./datafiles/WAGE1.DTA")
+np.mean(dataset['wage'])
+np.var(dataset['wage'])
+np.std(dataset['wage'])
+```
+
+:::
+
+
+## Joint, Marginal, Conditional Distributions
+
+- After analyzing **univariate statistics** such as the expected value, variance and standard deviation of a r.v., we might consider the relationship between two r.v.'s
+
+- To do this, we need the concepts of **joint, marginal and conditional distributions**
+
+- A **joint distribution** is the probability distribution of two or more random variables simultaneously
+  - For discrete variables: $P(X=x, Y=y)$
+  - For continuous variables: $f(x,y)$
+    - Properties:
+      - Non-negative: $P(X=x, Y=y) \geq 0$
+      - Sums to 1: $\sum_{i=1}^N \sum_{j=1}^M P(X=x_i, Y=y_j) = 1$
+
+- Example: education level ($X$) and income ($Y$) in a survey.
+
+## Joint and Marginal Distribution
+
+- The **marginal distribution** is just a pdf. It is obtained by "summing out" the other r.v.:
+  - $P(X=x) = \sum_{j=1}^M P(X=x, Y=y_j)$
+  - $P(Y=y) = \sum_{i=1}^N P(X=x_i, Y=y)$
+  
+- Represents the probability distribution of one r.v., without taking the other into account
+
+- Example: joint distribution of education and income:
+
+|          | Y=$30k | Y=$60k | Y=$90k | **Marginal** |
+|----------|-------|-------|-------|-------------|
+| **X=HS** | 0.10  | 0.05  | 0.01  | *0.16*      |
+| **X=BSc** | 0.15  | 0.20  | 0.10  | *0.45*      |
+| **X=MSc** | 0.05  | 0.15  | 0.19  | *0.39*      |
+| **Marginal** | *0.30* | *0.40* | *0.30* | **1.00** |
+
+## Conditional Distribution
+
+- The **conditional distribution** is the distribution of a random variable $Y$ conditional on a **specific value** of another random variable $X$. It is defined as the ratio of the joint distribution over the marginal distribution:
+
+$$
+P(Y=y | X=x) = \frac{P(X=x, Y=y)}{P(X=x)}
+$$
+Graphically:
+
+```{python}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 7
+#| fig-align: 'center'
+from matplotlib import pyplot as plt
+from matplotlib_venn import venn2, venn2_circles
+
+# Set up the figure
+plt.figure(figsize=(8, 6))
+
+# Define the sizes (adjust these values as needed)
+total = 100
+A = 40  # Event A size
+B = 30  # Event B size
+A_and_B = 15  # Intersection size
+
+# Create the Venn diagram
+venn = venn2(subsets=(A - A_and_B, B - A_and_B, A_and_B), 
+             set_labels=('Event A', 'Event B'))
+
+# Add conditional probability annotations
+plt.text(-0.5, 0.3, f'P(A) = {A/total:.2f}', fontsize=12)
+plt.text(0.5, 0.3, f'P(B) = {B/total:.2f}', fontsize=12)
+plt.text(0, 0.1, f'P(A∩B) = {A_and_B/total:.2f}', fontsize=12)
+plt.text(0, -0.2, f'P(A|B) = P(A∩B)/P(B) = {A_and_B/B:.2f}', 
+         fontsize=12, ha='center', color='red')
+
+# Style the diagram
+venn2_circles(subsets=(A - A_and_B, B - A_and_B, A_and_B), linestyle='dashed')
+plt.title("Venn Diagram Showing Conditional Probability P(A|B)", pad=20)
+plt.show()
+```
+
+## Conditional Probability Example
+
+- Given this joint distribution:
+
+
+|          | Y=$30k | Y=$60k | Y=$90k | **Marginal** |
+|----------|-------|-------|-------|-------------|
+| **X=HS** | 0.10  | 0.05  | 0.01  | *0.16*      |
+| **X=BSc** | 0.15  | 0.20  | 0.10  | *0.45*      |
+| **X=MSc** | 0.05  | 0.15  | 0.19  | *0.39*      |
+| **Marginal** | *0.30* | *0.40* | *0.30* | **1.00** |
+
+- We can calculate the conditional probability that someone earns $90k (Y) given they have a Master's degree (X=MA)? 
+
+\begin{align}
+\mathbb{P}(Y=90k|X=MSc) &=\frac{\mathbb{P}(Y=90k, X=MSc)}{\mathbb{P}(X=MSc)} = \newline
+&=\frac{0.19}{0.39}\approx 0.49
+\end{align}
+
+## Conditional Probability Example
+
+|          | Y=$30k | Y=$60k | Y=$90k | **Marginal** |
+|----------|-------|-------|-------|-------------|
+| **X=HS** | 0.10  | 0.05  | 0.01  | *0.16*      |
+| **X=BSc** | 0.15  | 0.20  | 0.10  | *0.45*      |
+| **X=MSc** | 0.05  | 0.15  | 0.19  | *0.39*      |
+| **Marginal** | *0.30* | *0.40* | *0.30* | **1.00** |
+
+
+- Similarly, $\mathbb{P}(Y=60k|X=MSc)=\frac{0.15}{0.39} \approx 0.38$ and $\mathbb{P}(Y=30k|X=MSc)=\frac{0.05}{0.39} \approx 0.12$. 
+
+## Independence
+
+- Two r.v.’s ($X$ and $Y$) are independent if the distribution of each variable is unaffected by any particular outcome the other variable takes on
+  - The joint distribution is equal to product of marginal distributions:
+  
+$$
+P(X = x_i , Y=y_j ) = P(X = x_i ) \cdot P(Y=y_j )
+$$ 
+
+- Consequences of independence:
+  - The conditional distribution is equal to marginal distribution: $P(Y=y_j | X = x_i) = Pr(X = x_i)$
+  - The covariance and correlation between the random variables is zero
+
+## Conditional Expectation 
+
+- Remember that we can summarize the pdf by its expectation $\mathbb{E}[Y]$
+- We can also summarize the conditional distribution by the conditional expectation $\mathbb{E}[Y|X]$
+- The conditional expectation is defined as:
+
+$$
+E[Y|X=x] = \sum_{i=1}^N Pr(Y = y_i | X=x) \cdot  y_i
+$$
+
+- Rules of calculation:
+  - $\mathbb{E}[cY|X=x] = c\mathbb{E}[Y|X=x]$
+  - $\mathbb{E}[h(X) Y | X=x] = h(x) \mathbb{E}[Y | X=x]$
+  
+## Covariance
+
+- The covariance between $X$ and $Y$ is a measure of linear association between them:
+
+\begin{align}
+Cov (X, Y) = \sigma_{XY} &= \mathbb{E} \left[ (X - \mathbb{E}[X]) (Y- \mathbb{E}[Y]) \right] \newline
+&= \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y]
+\end{align}
+
+- If Cov (X , Y) > (<) 0 : X and G are positively (negatively) linearly associated
+- If Cov (X , G ) = 0 : X and G are not linearly associated
+
+- When two variables are independently distributed, their covariance is 0. But the converse need not be true: a covariance of 0 does not necessarily imply independence as
+the association may be non-linear
+
+## Covariance: Rules of Calculation
+
+- $Cov(X, c)=0$
+- $Cov(aX, bY) = ab Cov(X, Y)$
+- $Cov(X, X) = Var(X)$
+
+## Correlation
+
+- The correlation, also denoted $\rho_{XY}$, is a **scaled version** of the covariance:
+
+$$
+Corr(X,Y) = \frac{Cov(X,Y)}{\sqrt{Var(X)} \sqrt{Var(Y)}}
+$$
+
+- which implies that $-1 \leq \rho_{XY} \leq 1$
+
+```{python}
+#| echo: false
+#| output: asis
+import numpy as np
+import matplotlib.pyplot as plt
+from contextlib import redirect_stdout
+import io
+
+with redirect_stdout(io.StringIO()):
+  # Generate data
+  np.random.seed(42)
+  n = 100
+  
+  # Positive correlation
+  x1 = np.random.normal(0, 1, n)
+  y1 = 0.9 * x1 + np.random.normal(0, 0.1, n)
+  
+  # Negative correlation
+  x2 = np.random.normal(0, 1, n)
+  y2 = -0.9 * x2 + np.random.normal(0, 0.1, n)
+  
+  # No correlation
+  x3 = np.random.normal(0, 1, n)
+  y3 = np.random.normal(0, 1, n)
+  
+  # Create figure
+  fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+  
+  for ax, x, y, corr in zip(axes, [x1, x2, x3], [y1, y2, y3], [0.9, -0.9, 0]):
+      ax.scatter(x, y, alpha=0.7)
+      ax.set_title(f'Correlation = {corr}')
+      ax.set_xlabel('X')
+      ax.set_ylabel('Y')
+      ax.grid(True, linestyle='--', alpha=0.5)
+      ax.set_xlim(-3, 3)
+      ax.set_ylim(-3, 3)
+  
+  fig.tight_layout()
+  fig
+```
+
+
+## Overview
+
+- Now, we have used univariate statistical concepts such as _expected value_, _variance_, and _standard deviation_ to summarize a potential variable of interest $Y$ in the population
+- We have also focused on its potential relationship with another population variable $X$ through investigating aspects of the joint and conditional distribution, conditional expectation and covariance/correlation. 
+
+- However, **in real life, we almost never observe the population. We only observe a sample**. 
+
+- Hence, we need to use the sample (a dataset) to infer something about the population of interest. 
+  - Next, we'll introduce various **estimators**, that is, formulas that use the sample to estimate something for the population
+  - We also want to say something about whether these estimators are sensible; here the concepts of **unbiasedness** and **consistency** come into play.
+  
+# Inferential Statistics Recap
+
+
+  
+
+
+## Regression in R/Python
+
+:::{.panel-tabset}
+
+## R
+
+- The standard way of doing this in R:
+
+```{r}
+model <- lm(formula = cyl ~ mpg, data = mtcars)
+summary(model)
+```
+
+
+## Python
+
+- The standard way of doing this in Python:
+
+```{python}
+import statsmodels.formula.api as smf
+
+model = smf.ols('cyl ~ mpg', data=r.mtcars)
+results = model.fit()
+print(results.summary())
+```
+
+:::
+
+
+## Regression Tables in R/Python
+
+:::{.panel-tabset}
+
+## R
+
+- The best way to do this in R:
+
+```{r}
+#| tbl-cap: "Tables in R"
+library(fixest)
+model1 <- feols(cyl ~ mpg, data=mtcars)
+model2 <- feols(cyl ~ mpg + hp, data=mtcars)
+modelsummary(list(model1, model2), output='gt', gof_map=c('nobs', 'r.squared'))
+```
+
+
+## Python
+
+- The best way to do this in Python:
+
+```{python}
+#| tbl-cap: "Tables in Python"
+import pyfixest as pf
+fit1 = pf.feols(fml="cyl ~ mpg", data=r.mtcars)
+fit2 = pf.feols(fml="cyl ~ mpg + hp", data=r.mtcars)
+pf.etable([fit1, fit2])
+```
+
+:::
+
+
