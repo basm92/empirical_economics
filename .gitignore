@@ -1,1 +1,9 @@
+<<<<<<< HEAD
 .qodo
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.hidden_notes.txt
+*.DTA
+*.dta
