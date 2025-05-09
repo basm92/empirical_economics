@@ -1,0 +1,101 @@
+---
+title: | 
+  | Prospective Outline
+  | Empirical Economics
+  | 2025-2026
+author: |
+  | Bas Machielsen
+  | a.h.machielsen@uu.nl
+date: September 2025
+urlcolor: purple
+linkcolor: purple
+output: 
+  pdf_document:
+    includes:
+      in_header: "preamble.tex"
+---
+
+## Prospective Outline Empirical Economics
+
+### Lecture 1: Statistics & Probability
+
+1. Basic Probability Theory:
+Experiments, Outcomes, Sample Spaces, Events.
+
+2. Conditional Probability: P(A|B) = P(A ∩ B) / P(B).
+
+3. Random Variables:
+Definition: A variable whose value is a numerical outcome of a random phenomenon.
+Discrete Random Variables vs. Continuous Random Variables.
+
+4. Probability Distributions for Discrete Random Variables:
+Probability Mass Function (PMF).
+Expected Value ($E[X]$) or Mean of a discrete random variable.
+Variance ($Var(X)$) and Standard Deviation of a discrete random variable.
+Example with Bernoulli Distribution.
+
+5. Probability Distributions for Continuous Random Variables:
+6.1 Probability Density Function (PDF) – area under the curve represents probability.
+6.2 Cumulative Distribution Function (CDF) for both discrete and continuous variables.
+
+6The Normal Distribution:
+Properties: Bell-shaped, symmetric, defined by mean and variance
+The Standard Normal Distribution (Z-distribution)
+Using Z-tables or software to find probabilities.
+
+7. Covariance and Correlation:
+Covariance: Measuring the direction of linear relationship.
+Correlation Coefficient (ρ or r): Measuring strength and direction of linear relationship (-1 to +1).
+Distinction: Correlation does not imply causation.
+
+8. Introduction to Sampling:
+Population vs. Sample.
+Parameters (population characteristics) vs. Statistics (sample characteristics).
+Simple Random Sampling.
+
+9. The Concept of a Sampling Distribution:
+The distribution of a sample statistic (e.g., sample mean) if we were to draw many samples.
+
+10. The Central Limit Theorem (CLT):
+Statement and profound implications for the sampling distribution of the sample mean.
+Importance for inference even when the population is not normal (for large enough sample sizes).
+
+11. Introduction to Estimation:
+Point Estimators (e.g., sample mean ̄$\bar{x}$ as an estimator for population mean $\mu$.
+Desirable properties of estimators (unbiasedness, efficiency, consistency - conceptual).
+
+12. Introduction to Hypothesis Testing (Conceptual):
+Null Hypothesis $H_0$ and Alternative Hypothesis $H_A$
+The idea of test statistics and p-values (without formal calculations yet).
+
+### Lecture 2: The Linear Model
+
+1. What is Econometrics? Why study it?
+The nature of economic data: Cross-sectional, Time Series, Pooled Cross-sections, Panel Data.
+The concept of a model: Population Regression Function (PRF).
+
+2. The Sample Regression Function (SRF).
+2.1 Derivation of Ordinary Least Squares (OLS) estimators for SLR (minimizing Sum of Squared Residuals - SSR).
+2.2 Algebraic properties of OLS statistics (fitted values, residuals).
+2.3 Interpreting the intercept $\beta_0$ and $\beta_1$ coefficients in OLS
+2.4 Units of measurement and functional form (level-level).
+2.5 Goodness-of-Fit: R-squared and Standard Error of the Regression (SER).
+2.6 Understanding Statistical Output
+
+3. Classical Assumptions
+3.1 No perfect collinearity.
+3.2 Zero conditional mean of errors $E(u|x) = 0$ for unbiasedness
+3.3 Unbiasedness of OLS estimators
+3.4 Variance of OLS estimators 
+
+4. Introduction to Multiple Linear Regression 
+4.1 OLS estimation of the MLR model.
+
+
+
+### Lecture 3: Panel Data
+
+
+### Lecture 4: Binary Outcome
+
+### Lecture 5: Difference-in-differences

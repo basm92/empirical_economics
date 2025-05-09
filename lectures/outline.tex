@@ -1,0 +1,201 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+%% MISC
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[colorlinks=true, urlcolor = orange, linkcolor=blue, citecolor=purple]{hyperref}
+\usepackage[utf8]{inputenc}
+%\usepackage[margin=1.5in]{geometry}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+%\usepackage{fontspec}
+
+%% FONTS
+\usepackage{charter} 
+\usepackage[expert]{mathdesign}
+
+%\frenchspacing
+\usepackage{setspace}
+\setstretch{1.1}
+
+\usepackage{booktabs}
+\usepackage{siunitx}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  colorlinks=true,
+  linkcolor={purple},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={purple},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Prospective Outline\\
+Empirical Economics\\
+2025-2026}
+\author{Bas Machielsen\\
+\href{mailto:a.h.machielsen@uu.nl}{\nolinkurl{a.h.machielsen@uu.nl}}}
+\date{September 2025}
+
+\begin{document}
+\maketitle
+
+\subsection{Prospective Outline Empirical
+Economics}\label{prospective-outline-empirical-economics}
+
+\subsubsection{Lecture 1: Statistics \&
+Probability}\label{lecture-1-statistics-probability}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Basic Probability Theory: Experiments, Outcomes, Sample Spaces,
+  Events.
+\item
+  Conditional Probability: P(A\textbar B) = P(A ∩ B) / P(B).
+\item
+  Random Variables: Definition: A variable whose value is a numerical
+  outcome of a random phenomenon. Discrete Random Variables
+  vs.~Continuous Random Variables.
+\item
+  Probability Distributions for Discrete Random Variables: Probability
+  Mass Function (PMF). Expected Value (\(E[X]\)) or Mean of a discrete
+  random variable. Variance (\(Var(X)\)) and Standard Deviation of a
+  discrete random variable. Example with Bernoulli Distribution.
+\item
+  Probability Distributions for Continuous Random Variables: 6.1
+  Probability Density Function (PDF) -- area under the curve represents
+  probability. 6.2 Cumulative Distribution Function (CDF) for both
+  discrete and continuous variables.
+\end{enumerate}
+
+6The Normal Distribution: Properties: Bell-shaped, symmetric, defined by
+mean and variance The Standard Normal Distribution (Z-distribution)
+Using Z-tables or software to find probabilities.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\item
+  Covariance and Correlation: Covariance: Measuring the direction of
+  linear relationship. Correlation Coefficient (ρ or r): Measuring
+  strength and direction of linear relationship (-1 to +1). Distinction:
+  Correlation does not imply causation.
+\item
+  Introduction to Sampling: Population vs.~Sample. Parameters
+  (population characteristics) vs.~Statistics (sample characteristics).
+  Simple Random Sampling.
+\item
+  The Concept of a Sampling Distribution: The distribution of a sample
+  statistic (e.g., sample mean) if we were to draw many samples.
+\item
+  The Central Limit Theorem (CLT): Statement and profound implications
+  for the sampling distribution of the sample mean. Importance for
+  inference even when the population is not normal (for large enough
+  sample sizes).
+\item
+  Introduction to Estimation: Point Estimators (e.g., sample mean
+  ̄\(\bar{x}\) as an estimator for population mean \(\mu\). Desirable
+  properties of estimators (unbiasedness, efficiency, consistency -
+  conceptual).
+\item
+  Introduction to Hypothesis Testing (Conceptual): Null Hypothesis
+  \(H_0\) and Alternative Hypothesis \(H_A\) The idea of test statistics
+  and p-values (without formal calculations yet).
+\end{enumerate}
+
+\subsubsection{Lecture 2: The Linear
+Model}\label{lecture-2-the-linear-model}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  What is Econometrics? Why study it? The nature of economic data:
+  Cross-sectional, Time Series, Pooled Cross-sections, Panel Data. The
+  concept of a model: Population Regression Function (PRF).
+\item
+  The Sample Regression Function (SRF). 2.1 Derivation of Ordinary Least
+  Squares (OLS) estimators for SLR (minimizing Sum of Squared Residuals
+  - SSR). 2.2 Algebraic properties of OLS statistics (fitted values,
+  residuals). 2.3 Interpreting the intercept \(\beta_0\) and \(\beta_1\)
+  coefficients in OLS 2.4 Units of measurement and functional form
+  (level-level). 2.5 Goodness-of-Fit: R-squared and Standard Error of
+  the Regression (SER). 2.6 Understanding Statistical Output
+\item
+  Classical Assumptions 3.1 No perfect collinearity. 3.2 Zero
+  conditional mean of errors \(E(u|x) = 0\) for unbiasedness 3.3
+  Unbiasedness of OLS estimators 3.4 Variance of OLS estimators
+\item
+  Introduction to Multiple Linear Regression 4.1 OLS estimation of the
+  MLR model.
+\end{enumerate}
+
+\subsubsection{Lecture 3: Panel Data}\label{lecture-3-panel-data}
+
+\subsubsection{Lecture 4: Binary
+Outcome}\label{lecture-4-binary-outcome}
+
+\subsubsection{Lecture 5:
+Difference-in-differences}\label{lecture-5-difference-in-differences}
+
+\end{document}
