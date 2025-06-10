@@ -1,0 +1,359 @@
+---
+title: "Difference-in-differences"
+author: "Bas Machielsen"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## **The Difference-in-Differences Estimator**
+
+
+### **Foundations of Causal Inference & Basic DiD Setup**
+
+---
+
+### **Recap: Correlation vs. Causation**
+
+The fundamental challenge in empirical work.
+
+-   **Correlation:** Two variables move together.
+    -   *Example:* Ice cream sales are positively correlated with crime rates.
+-   **Causation:** A change in one variable *causes* a change in another.
+    -   *Does eating ice cream cause crime?* Unlikely.
+-   **Confounding Variable:** A third variable affects both.
+    -   *Hot weather* increases both ice cream sales and the number of people outside (leading to more opportunities for crime).
+
+Our goal is to isolate the causal effect, not just the correlation.
+
+--
+
+### **The Potential Outcomes Framework**
+
+Also known as the **Rubin Causal Model**.
+
+Let's think about the effect of a treatment (e.g., a job training program) on an individual *i*.
+
+-   $Y_i(1)$: The potential outcome for unit *i* **if they receive the treatment**.
+    -   *Example: Person i's earnings if they attend the program.*
+
+-   $Y_i(0)$: The potential outcome for unit *i* **if they do NOT receive the treatment**.
+    -   *Example: Person i's earnings if they do not attend the program.*
+
+---
+
+
+### **The Individual Causal Effect**
+
+For any single individual *i*, the true causal effect of the treatment is the difference between their two potential outcomes:
+
+$$\tau_i = Y_i(1) - Y_i(0)$$
+
+-   This is the pure, unadulterated effect of the treatment on that one person.
+-   *Example:* The increase in Person *i*'s earnings caused *only* by the training program.
+
+---
+
+### **The Average Treatment Effect (ATE)**
+
+Since we usually can't measure the effect for every single individual, we focus on averages.
+
+The **Average Treatment Effect (ATE)** is the average of the individual causal effects over the entire population.
+
+$$ATE = E[\tau_i] = E[Y(1) - Y(0)]$$
+
+This tells us, "On average, what is the effect of this treatment for a person randomly drawn from the population?"
+
+---
+
+### **The Fundamental Problem of Causal Inference**
+
+This is the core challenge that all causal methods try to solve.
+
+**For any given unit *i*, we can only ever observe *one* of their potential outcomes.**
+
+-   If person *i* takes the training program, we see $Y_i(1)$. We will never know what their earnings would have been without it, $Y_i(0)$.
+-   If person *i* does not take the program, we see $Y_i(0)$. We will never know $Y_i(1)$.
+
+Causal inference is a **missing data problem**. The $Y_i(0)$ for the treated and the $Y_i(1)$ for the untreated are called **counterfactuals**.
+
+---
+
+### **Illustrating the Fundamental Problem**
+
+| Unit (i) | Attends Program? | Observed Earnings | Y_i(1) | Y_i(0) |
+| :---: | :---: | :---: | :---: | :---: |
+| Alice | Yes (T=1) | $50,000 | $50,000 | **???** |
+| Bob | No (T=0) | $40,000 | **???** | $40,000 |
+| Carol | Yes (T=1) | $45,000 | $45,000 | **???** |
+| David | No (T=0) | $60,000 | **???** | $60,000 |
+
+We can't calculate $Y_i(1) - Y_i(0)$ for anyone!
+
+---
+
+### **Why Simple Comparisons Fail**
+
+A naive approach might be to just compare the average earnings of those who attended the program to those who didn't.
+
+$$\text{Naive Comparison} = E[Y | T=1] - E[Y | T=0]$$
+
+This is almost always **wrong**. Why?
+
+Because the people who *choose* to get treatment might be different from those who don't in ways that also affect the outcome. This is **Selection Bias**.
+
+---
+
+### **Selection Bias: The Hidden Difference**
+
+The simple difference can be decomposed:
+
+$$E[Y|T=1] - E[Y|T=0] = ATE + \text{Selection Bias}$$
+
+Where:
+$\text{Selection Bias} = E[Y(0)|T=1] - E[Y(0)|T=0]$
+
+-   In words: Selection bias is the difference in the **no-treatment outcome** between the treated and untreated groups.
+-   *Job Program Example:* People who sign up for training ($T=1$) might be more motivated. Even without the program, their earnings `Y(0)` might have been higher than the less motivated group ($T=0$).
+
+---
+
+### **Introduction to Differences-in-Differences (DiD)**
+
+**The Core Idea:** Use data from a **pre-treatment period** to account for selection bias.
+
+-   We assume that the "selection bias" (the difference between the groups) is constant over time.
+-   We compare the *change* in the outcome over time for the treatment group to the *change* over time for a control group.
+-   The "difference in the differences" isolates the treatment effect.
+
+---
+
+### **The 2x2 DiD Setup**
+
+The classic setup involves two groups and two time periods.
+
+| | **Before Period (Pre)** | **After Period (Post)** |
+| :--- | :--- | :--- |
+| **Treatment Group** | Ȳ<sub>T,Pre</sub> | Ȳ<sub>T,Post</sub> |
+| **Control Group** | Ȳ<sub>C,Pre</sub> | Ȳ<sub>C,Post</sub> |
+
+-   **Treatment Group:** A group that is exposed to the policy/treatment in the "After" period.
+-   **Control Group:** A similar group that is *not* exposed to the treatment in either period.
+
+---
+
+### **Calculating the Simple DiD Estimator**
+
+We calculate two differences, then take the difference between them.
+
+1.  **First Difference (Treatment Group):** The change over time for the treated.
+    `Δ_T = Ȳ_T,Post - Ȳ_T,Pre`
+
+2.  **First Difference (Control Group):** The change over time for the controls. This represents the "secular trend" – what would have happened without the treatment.
+    `Δ_C = Ȳ_C,Post - Ȳ_C,Pre`
+
+3.  **The Difference-in-Differences:**
+    `DiD = Δ_T - Δ_C`
+    `DiD = (Ȳ_T,Post - Ȳ_T,Pre) - (Ȳ_C,Post - Ȳ_C,Pre)`
+
+---
+
+### **The "Parallel Trends" Assumption**
+
+This is the single most important identifying assumption in DiD.
+
+**Assumption:** In the absence of the treatment, the average outcome for the treatment group would have followed the same trend as the average outcome for the control group.
+
+-   Mathematically: `E[Y_T,Post(0) - Y_T,Pre(0)] = E[Y_C,Post(0) - Y_C,Pre(0)]`
+-   This assumption is about the **counterfactual**. We cannot prove it, but we can find evidence for or against it.
+
+---
+
+### **Graphical Illustration of DiD**
+
+
+
+---
+
+### **Deconstructing the DiD Graph**
+
+-   The **solid blue line** is the observed trend for the control group.
+-   The **solid red line** is the observed outcome for the treatment group.
+-   The **dotted red line** is the *counterfactual* for the treatment group, constructed by assuming its trend would have been parallel to the control group's trend.
+-   The **DiD effect** is the vertical distance between the actual outcome for the treatment group and its counterfactual outcome in the post-period.
+
+---
+
+### **Lecture 10: DiD Regression Framework, Extensions, and Robustness**
+
+---
+
+
+### **DiD using a Regression Framework**
+
+We can estimate the exact same 2x2 DiD using a simple OLS regression. This is more powerful and flexible.
+
+$Y_{it} = \beta_0 + \beta_1 Treat_i + \beta_2 Post_t + \beta_3(Treat_i × Post_t) + \epsilon_{it}$
+
+-   $Y_{it}$: Outcome for unit *i* at time *t*.
+-   $Treat_i$: A dummy variable = 1 if unit *i* is in the treatment group, 0 otherwise.
+-   $Post_t$: A dummy variable = 1 if the period is "Post", 0 otherwise.
+-   $Treat_i \times Post_t$: An interaction term.
+
+---
+
+### **Interpretation of Coefficients (1/2)**
+
+Let's break down what each `\beta` represents:
+
+$Y_{it} = \beta_0 + \beta_1 Treat_i + \beta_2 Post_t + \beta_3(Treat_i \times Post_t) + \epsilon_{it}$
+
+-   **\beta₀ (Intercept):** The average outcome for the **Control Group** (`Treat=0`) in the **Pre-Period** (`Post=0`).
+    -   `E[Y | Treat=0, Post=0] = \beta₀`
+
+-   **\beta₁:** The average *pre-existing difference* between the treatment and control groups in the pre-period. **This is the selection bias.**
+    -   `E[Y | Treat=1, Post=0] = \beta₀ + \beta₁`
+    -   So, `\beta₁ = E[Y | Treat=1, Post=0] - E[Y | Treat=0, Post=0]`
+
+---
+
+### **Interpretation of Coefficients (2/2)**
+
+`Y_iₜ = \beta₀ + \beta₁Treat_i + \beta₂Postₜ + \beta₃(Treat_i × Postₜ) + ε_iₜ`
+
+-   **\beta₂:** The average change in the outcome for the **Control Group** from the pre- to the post-period. **This is the secular trend.**
+    -   `E[Y | Treat=0, Post=1] = \beta₀ + \beta₂`
+    -   So, `\beta₂ = E[Y | Treat=0, Post=1] - E[Y | Treat=0, Post=0]`
+
+-   **\beta₃ (The Interaction Term):** **This is the DiD estimator!** It's the additional change in the outcome for the Treatment Group, above and beyond the secular trend.
+    -   It is the causal effect of interest.
+    -   `\beta₃ = (E[Y|T=1,P=1] - E[Y|T=1,P=0]) - (E[Y|T=0,P=1] - E[Y|T=0,P=0])`
+
+---
+
+### **Advantages of the Regression Framework**
+
+Why bother with regression instead of just calculating the four means?
+
+1.  **Standard Errors:** Regression automatically provides standard errors, t-statistics, and p-values for your DiD estimate (`\beta₃`), allowing for statistical inference.
+
+2.  **Adding Covariates:** It is easy to add control variables to the model to increase precision and make the parallel trends assumption more plausible.
+
+3.  **Flexibility:** The framework is easily extended to more complex scenarios (more groups, more time periods, etc.).
+
+---
+
+### **Adding Covariates to the DiD Model**
+
+We can add a vector of control variables, `X`, to the regression.
+
+```
+Y_iₜ = \beta₀ + \beta₁Treat_i + \beta₂Postₜ + \beta₃(Treat_i × Postₜ) + γ'X_iₜ + ε_iₜ
+```
+
+-   **Purpose:** To control for observable characteristics that might differ between the groups and affect trends in the outcome.
+-   This helps strengthen the parallel trends assumption. It becomes "parallel trends *conditional on X*".
+-   *Example:* When studying a state-level policy, you might control for state GDP, population size, etc.
+
+---
+
+### **Testing the Parallel Trends Assumption**
+
+We can't prove the assumption, but we can build evidence for it. This requires data from **multiple pre-treatment periods**.
+
+-   **Method 1: Visual Inspection (Most Common)**
+    -   Plot the average outcomes for the treatment and control groups over time.
+    -   Visually check if their trends were parallel in the periods *before* the treatment was introduced.
+
+---
+
+### **Visualizing a Pre-Trend Check**
+
+
+
+*The key is to check if the lines are parallel in the t-3, t-2, and t-1 periods.*
+
+---
+
+### **Statistical "Tests" for Parallel Trends**
+
+If you have multiple pre-treatment periods, you can run a "placebo" test.
+
+-   **Idea:** Run a DiD analysis using only pre-treatment data. For instance, define a fake "treatment" in period t-2 and use t-3 as the "pre" period.
+-   **In a regression:** Interact the treatment group dummy with time-period dummies for *each pre-treatment period*.
+    `Y = ... + δ₋₂ (Treat × PrePeriod₋₂) + δ₋₁ (Treat × PrePeriod₋₁) + \beta₃(Treat × Post) ...`
+-   **Result:** The coefficients `δ₋₂` and `δ₋₁` should be small and statistically insignificant (not different from zero). This shows there was no pre-existing differential trend.
+
+---
+
+### **Extension: Multiple Periods & Staggered Adoption**
+
+The real world is often messier than 2x2.
+
+-   **Staggered Adoption:** Different units receive the treatment at different times.
+    -   *Example:* State A adopts a policy in 2010, State B in 2012, State C never does.
+-   The simple 2x2 `Treat × Post` model is no longer sufficient and can be biased.
+-   Modern methods (e.g., Callaway & Sant'Anna, Sun & Abraham) address these issues by using better defined control groups for each treated unit.
+
+---
+
+### **Visualizing Staggered DiD: Event Study Plots**
+
+These plots are standard for visualizing results from models with multiple periods.
+
+-   **X-axis:** Time relative to the treatment event (e.g., -3, -2, -1, 0, +1, +2 years).
+-   **Y-axis:** The estimated DiD coefficient for that relative time period.
+-   **Interpretation:**
+    -   Coefficients for **pre-periods** (t < 0) should be near zero (validates parallel trends).
+    -   Coefficients for **post-periods** (t ≥ 0) show the dynamic causal effect of the policy over time.
+
+---
+
+### **Potential Pitfalls (1/3): Ashenfelter's Dip**
+
+A famous issue where the parallel trends assumption is violated in a specific way.
+
+-   **The Dip:** A notable drop in the outcome for the treatment group *just before* treatment.
+-   *Classic Example:* Individuals' earnings often drop right before they enter a job training program (e.g., due to job loss).
+-   This makes it look like the program had a huge effect, but it's really just a recovery to a normal level.
+
+---
+
+### **Potential Pitfalls (2/3): Policy Anticipation & Spillovers**
+
+-   **Anticipation Effects:** If people know a policy is coming, they may change their behavior *before* it's officially implemented. This contaminates the "pre" period and violates parallel trends.
+    -   *Example:* A firm hires fewer people in anticipation of a minimum wage hike.
+
+-   **Spillover Effects:** The treatment "spills over" and affects the control group.
+    -   *Example:* A job fair in one city (treatment) draws workers from a neighboring city (control), affecting the control city's labor market. Your control group is no longer a valid counterfactual.
+
+---
+
+### **Potential Pitfalls (3/3): Other Limitations**
+
+-   **Functional Form:** The basic DiD model assumes the treatment effect is a constant, additive shift.
+-   **Data Requirements:** Requires panel data (tracking the same units over time) or repeated cross-sectional data.
+-   **Bad Control Group:** The entire method relies on finding a credible control group that satisfies the parallel trends assumption. This is often the hardest part.
+
+---
+
+### **Summary: DiD is Powerful, but Use with Care**
+
+-   **What it does:** DiD provides a powerful and intuitive way to estimate causal effects by controlling for time-invariant unobserved differences (selection bias).
+-   **The Golden Rule:** The **Parallel Trends** assumption is everything. You must convince yourself and your audience that it is plausible.
+-   **Best Practices:**
+    -   Use a regression framework for S.E.s and covariates.
+    -   Always visually inspect pre-treatment trends.
+    -   Run statistical pre-trend tests if you have the data.
+    -   Be aware of pitfalls like anticipation, spillovers, and Ashenfelter's dip.
+
+---
+
+### **Questions?**
+
+
+

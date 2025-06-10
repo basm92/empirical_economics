@@ -112,7 +112,7 @@ Probability}\label{lecture-1-statistics-probability}
   Basic Probability Theory: Experiments, Outcomes, Sample Spaces,
   Events.
 \item
-  Conditional Probability: P(A\textbar B) = P(A ∩ B) / P(B).
+  Conditional Probability: \(P(A|B) = P(A \cap B) / P(B)\).
 \item
   Random Variables: Definition: A variable whose value is a numerical
   outcome of a random phenomenon. Discrete Random Variables
@@ -187,15 +187,99 @@ Model}\label{lecture-2-the-linear-model}
   Unbiasedness of OLS estimators 3.4 Variance of OLS estimators
 \item
   Introduction to Multiple Linear Regression 4.1 OLS estimation of the
-  MLR model.
+  MLR model
 \end{enumerate}
 
-\subsubsection{Lecture 3: Panel Data}\label{lecture-3-panel-data}
+\subsubsection{Lecture 3: Time Series and
+Prediction}\label{lecture-3-time-series-and-prediction}
 
-\subsubsection{Lecture 4: Binary
-Outcome}\label{lecture-4-binary-outcome}
+\subsubsection{Lecture 4: Panel Data}\label{lecture-4-panel-data}
 
-\subsubsection{Lecture 5:
-Difference-in-differences}\label{lecture-5-difference-in-differences}
+What is Panel Data? Structure (\(N\) individuals/entities, \(T\) time
+periods). Advantages of Panel Data: Controlling for unobserved
+heterogeneity, increased degrees of freedom, dynamics. Notation for
+panel data models. The Pooled OLS Model on panel data: Assumptions and
+strong limitations (ignores heterogeneity). Unobserved Heterogeneity:
+Individual-specific effects (\(\alpha_i\)) and time effects
+(\(\lambda_t\)). The Fixed Effects (FE) Model: Treating \(\alpha_i\) as
+parameters to be estimated. The ``Within'' Estimator: Transformation via
+de-meaning data. The Least Squares Dummy Variable (LSDV) Estimator:
+Equivalence to Within estimator. Interpretation of coefficients in FE
+models (effect of X on Y within individuals over time). Pros and Cons of
+FE: Controls for time-invariant unobserved heterogeneity correlated with
+X, but cannot estimate effects of time-invariant variables.
+
+The Random Effects (RE) Model: Treating \(\alpha_i\) as part of the
+composite error term. Key Assumption for RE: \(E(\alpha_i|X_{it}) = 0\)
+(unobserved heterogeneity is uncorrelated with regressors). Estimation
+of RE models (Generalized Least Squares - GLS, or Feasible GLS - FGLS).
+Interpretation of coefficients in RE models. Pros of RE: Can estimate
+effects of time-invariant variables, more efficient than FE if
+assumptions hold. Cons of RE: Biased if key
+assumption\(E(\alpha_i|X_{it}) = 0\) is violated. Comparing FE and RE:
+The Hausman Test - intuition and application. Null hypothesis of Hausman
+test (RE is consistent and efficient) and decision rule. First
+Differences (FD) Estimator: Another way to eliminate fixed effects;
+comparison with FE. Practical considerations: Balanced vs.~unbalanced
+panels, choosing between Pooled OLS, FE, and RE.
+
+\subsubsection{Lecture 5: Binary
+Outcome}\label{lecture-5-binary-outcome}
+
+Introduction to Binary (Dummy) Dependent Variables (e.g., employment,
+purchase decision). The Linear Probability Model (LPM): Applying OLS to
+a binary dependent variable. Interpretation of coefficients in LPM as
+changes in probability. Advantages of LPM: Simplicity of estimation and
+interpretation. Problem 1 with LPM: Predicted probabilities can be
+outside \([0,1]\). Problem 2 with LPM: Non-normality of the error term.
+Problem 3 with LPM: Inherent heteroskedasticity of the error term. The
+need for non-linear models for binary outcomes. Introduction to the
+Latent Variable framework as motivation for Probit/Logit. The Probit
+Model: Assumption of a normally distributed latent error term; use of
+the Normal CDF. The Logit Model: Assumption of a logistically
+distributed latent error term; use of the Logistic CDF. Estimation:
+Maximum Likelihood Estimation (MLE) -- intuition and basic principles.
+Interpretation of Coefficients: Raw coefficients are not directly
+marginal effects. Calculating and interpreting Marginal Effects (MEs):
+Average Marginal Effects (AMEs) vs.~Marginal Effects at Means (MEMs).
+Odds Ratios: Specific interpretation for Logit models. Goodness-of-Fit
+for Probit/Logit: Pseudo R-squared (e.g., McFadden's), percent correctly
+predicted, likelihood ratio tests. Choosing between Probit and Logit
+(often similar results, logistic distribution has fatter tails).
+
+\subsubsection{Lecture 6:
+Difference-in-differences}\label{lecture-6-difference-in-differences}
+
+Recap: Correlation vs.~Causation -- the fundamental challenge. The
+Potential Outcomes Framework (Rubin Causal Model): \(Y_i (1), Y_i (0)\)
+The concept of the Average Treatment Effect (ATE). The Fundamental
+Problem of Causal Inference: We only observe one potential outcome per
+unit. Selection Bias: Why simple comparisons of treated and untreated
+groups can be misleading. Introduction to Differences-in-Differences
+(DiD): Intuition and basic idea. The 2x2 DiD Setup: Two groups
+(Treatment, Control) and two time periods (Before, After). Calculating
+the simple DiD estimator:
+\((\hat{Y}_{T,Post} - \hat{Y}_{T, Pre}) - (\hat{Y}_{C, Post} - \hat{Y}_{C,Pre})\).
+The ``Parallel Trends'' Assumption: The crucial identifying assumption
+for DiD. Graphical illustration of the parallel trends assumption and
+the DiD estimate. DiD using a Regression Framework:
+\(Y_{it} = \beta_0 + \beta_1 Treat_i + \beta_2 Post_t + β_3 (Treat_i \times Post_t) + \epsilon_{it}\)
+Interpretation of coefficients in the DiD regression Advantages of the
+regression framework (SEs, inclusion of covariates). Adding Covariates
+to the DiD model: Controlling for observable differences that might
+affect trends. Testing the Parallel Trends Assumption: Pre-treatment
+trend checks (visual, statistical tests on pre-treatment periods if data
+allows). DiD with multiple time periods and staggered adoption
+(conceptual overview). Event Study plots as a common way to visualize
+DiD with multiple periods. Potential Pitfalls and Limitations of DiD
+(e.g., Ashenfelter's dip, policy anticipation, spillover effects).
+Robustness Checks for DiD studies (e.g., alternative control groups,
+placebo tests).
+
+\subsubsection{Lecture 7: Propensity Score Matching,
+IV}\label{lecture-7-propensity-score-matching-iv}
+
+\subsubsection{Lecture 8: Regression
+Discontinuity}\label{lecture-8-regression-discontinuity}
 
 \end{document}
