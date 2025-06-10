@@ -7,3 +7,5 @@
 *.DTA
 *.dta
 /.quarto/
+*/.quarto/
+*/_presentation/
