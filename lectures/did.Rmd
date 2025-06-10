@@ -30,7 +30,7 @@ The fundamental challenge in empirical work.
 
 Our goal is to isolate the causal effect, not just the correlation.
 
---
+---
 
 ### **The Potential Outcomes Framework**
 
@@ -85,7 +85,7 @@ Causal inference is a **missing data problem**. The $Y_i(0)$ for the treated and
 
 ### **Illustrating the Fundamental Problem**
 
-| Unit (i) | Attends Program? | Observed Earnings | Y_i(1) | Y_i(0) |
+| Unit (i) | Attends Program? | Observed Earnings | $Y_i(1)$ | $Y_i(0)$ |
 | :---: | :---: | :---: | :---: | :---: |
 | Alice | Yes (T=1) | $50,000 | $50,000 | **???** |
 | Bob | No (T=0) | $40,000 | **???** | $40,000 |
@@ -95,6 +95,7 @@ Causal inference is a **missing data problem**. The $Y_i(0)$ for the treated and
 We can't calculate $Y_i(1) - Y_i(0)$ for anyone!
 
 ---
+
 
 ### **Why Simple Comparisons Fail**
 
@@ -112,6 +113,21 @@ Because the people who *choose* to get treatment might be different from those w
 
 The simple difference can be decomposed:
 
+\begin{align*}
+    E[Y|T=1] - &E[Y|T=0] = E[Y(1)|T=1] - E[Y(0)|T=0] \\
+    &= E[Y(1)|T=1] - E[Y(0)|T=1] \\
+    & + E[Y(0)|T=1] - E[Y(0)|T=0] \\
+    \\
+    &= \underbrace{\left( E[Y(1)|T=1] - E[Y(0)|T=1] \right)}_{\text{Average Treatment Effect on the Treated (ATT)}} \\
+    & \qquad + \underbrace{\left( E[Y(0)|T=1] - E[Y(0)|T=0] \right)}_{\text{Selection Bias}}
+\end{align*}
+
+---
+
+### **Selection Bias: Decomposition**
+
+Hence
+
 $$E[Y|T=1] - E[Y|T=0] = ATE + \text{Selection Bias}$$
 
 Where:
@@ -119,6 +135,7 @@ $\text{Selection Bias} = E[Y(0)|T=1] - E[Y(0)|T=0]$
 
 -   In words: Selection bias is the difference in the **no-treatment outcome** between the treated and untreated groups.
 -   *Job Program Example:* People who sign up for training ($T=1$) might be more motivated. Even without the program, their earnings `Y(0)` might have been higher than the less motivated group ($T=0$).
+
 
 ---
 
@@ -138,8 +155,8 @@ The classic setup involves two groups and two time periods.
 
 | | **Before Period (Pre)** | **After Period (Post)** |
 | :--- | :--- | :--- |
-| **Treatment Group** | Ȳ<sub>T,Pre</sub> | Ȳ<sub>T,Post</sub> |
-| **Control Group** | Ȳ<sub>C,Pre</sub> | Ȳ<sub>C,Post</sub> |
+| **Treatment Group** | $\hat{Y}_{T, Pre}$ | $\hat{Y}_{T, Post}$ |
+| **Control Group** | $\hat{Y}_{C, Pre}$ | $\hat{Y}_{C, Post}$ |
 
 -   **Treatment Group:** A group that is exposed to the policy/treatment in the "After" period.
 -   **Control Group:** A similar group that is *not* exposed to the treatment in either period.
@@ -151,31 +168,122 @@ The classic setup involves two groups and two time periods.
 We calculate two differences, then take the difference between them.
 
 1.  **First Difference (Treatment Group):** The change over time for the treated.
-    `Δ_T = Ȳ_T,Post - Ȳ_T,Pre`
+    $\Delta_T = \hat{Y}_{T,Post} - \hat{Y}_{T, Pre}$
 
 2.  **First Difference (Control Group):** The change over time for the controls. This represents the "secular trend" – what would have happened without the treatment.
-    `Δ_C = Ȳ_C,Post - Ȳ_C,Pre`
+    $\Delta_C = \hat{Y}_{C, Post} - \hat{Y}_{C, Pre}$
 
 3.  **The Difference-in-Differences:**
-    `DiD = Δ_T - Δ_C`
-    `DiD = (Ȳ_T,Post - Ȳ_T,Pre) - (Ȳ_C,Post - Ȳ_C,Pre)`
+    $\tau_{DiD} = \Delta_T - \Delta_C$
 
 ---
 
-### **The "Parallel Trends" Assumption**
+### **DiD Under Potential Outcomes**
 
-This is the single most important identifying assumption in DiD.
+The observed outcome, $Y_{it}$, is determined by the unit's group status and the time period.
 
-**Assumption:** In the absence of the treatment, the average outcome for the treatment group would have followed the same trend as the average outcome for the control group.
+\begin{itemize}
+    \item For the \textbf{treated group ($D_i=1$)}: They are untreated at $t=0$ and treated at $t=1$.
+        \begin{itemize}
+            \item $Y_{i0} = Y_{i0}(0)$ for $t=0$ (pre-treatment)
+            \item $Y_{i1} = Y_{i1}(1)$ for $t=1$ (post-treatment)
+        \end{itemize}
+    \item For the \textbf{control group ($D_i=0$)}: They are never treated.
+        \begin{itemize}
+            \item $Y_{i0} = Y_{i0}(0)$ for $t=0$
+            \item $Y_{i1} = Y_{i1}(0)$ for $t=1$
+        \end{itemize}
+\end{itemize}
 
--   Mathematically: `E[Y_T,Post(0) - Y_T,Pre(0)] = E[Y_C,Post(0) - Y_C,Pre(0)]`
--   This assumption is about the **counterfactual**. We cannot prove it, but we can find evidence for or against it.
+---
+
+### **The Estimand: The ATT**
+
+
+Formally, the ATT is the difference between the treated group's outcome at $t=1$ and what their outcome \textit{would have been} at $t=1$ if they had not been treated.
+\begin{equation}
+    \text{ATT} = E[Y_{i1}(1) | D_i=1] - E[Y_{i1}(0) | D_i=1]
+\end{equation}
+
+The first term, $E[Y_{i1}(1) | D_i=1]$, is observed as the average outcome for the treated group in the post-period, $E[Y_{i1} | D_i=1]$.
+
+The second term, $E[Y_{i1}(0) | D_i=1]$, is the \textbf{counterfactual}. It is the unobservable average outcome for the treated group had they not received the treatment. The entire goal of the DiD strategy is to find a way to estimate this term.
+
+---
+
+### **Parallel Trends**
+
+
+The DiD estimator is valid under the \textbf{Parallel Trends Assumption}. This assumption states that, in the absence of treatment, the average outcome for the treated group would have changed over time by the same amount as the average outcome for the control group.
+
+Mathematically, this is expressed in terms of the potential outcome under no-treatment, $Y_{it}(0)$:
+
+\begin{equation}
+    \label{eq:parallel_trends}
+    E[Y_{i1}(0) - Y_{i0}(0) | D_i=1] = E[Y_{i1}(0) - Y_{i0}(0) | D_i=0]
+\end{equation}
+
+The left side is the counterfactual change for the treated group. The right side is the observed change for the control group, since for them $Y_{it} = Y_{it}(0)$. This assumption allows us to use the control group to identify the counterfactual trend for the treated group.
+
+---
+
+### **Derivation of the DiD Estimator**
+
+First, we rearrange the parallel trends assumption \eqref{eq:parallel_trends} to solve for our unobserved counterfactual:
+
+\begin{align}
+    \label{eq:counterfactual}
+    E[Y_{i1}(0) | D_i=1] = \underbrace{E[Y_{i0}(0) | D_i=1]}_{\text{Treated pre-treatment}} + \\ \underbrace{\left( E[Y_{i1}(0) | D_i=0] - E[Y_{i0}(0) | D_i=0] \right)}_{\text{Change in control group}} \nonumber
+\end{align}
+
+This equation shows how we construct the counterfactual: we take the treated group's initial level and add the change experienced by the control group.
+
+---
+
+### **Derivation of the DiD Estimator**
+
+Substitute this expression for the counterfactual \eqref{eq:counterfactual} back into the definition of ATT:
+
+\begin{align*}
+    \text{ATT} &= E[Y_{i1}(1) | D_i=1] - E[Y_{i1}(0) | D_i=1] \\
+    &= E[Y_{i1}(1) | D_i=1] - \\
+    &\left( E[Y_{i0}(0) | D_i=1] + E[Y_{i1}(0) | D_i=0] - E[Y_{i0}(0) | D_i=0] \right)
+\end{align*}
+
+---
+
+### **Replacing Potential Outcomes with Observables**
+
+Finally, we replace the potential outcomes with their observable counterparts:
+
+\begin{itemize}
+    \item $E[Y_{i1}(1) | D_i=1] = E[Y_{i1} | D_i=1]$
+    \item $E[Y_{i0}(0) | D_i=1] = E[Y_{i0} | D_i=1]$
+    \item $E[Y_{i1}(0) | D_i=0] = E[Y_{i1} | D_i=0]$
+    \item $E[Y_{i0}(0) | D_i=0] = E[Y_{i0} | D_i=0]$
+\end{itemize}
+
+---
+
+### **Identification of the Estimand**
+
+Substituting these into the equation gives the DiD estimator:
+
+\begin{align*}
+    \text{ATT} &= E[Y_{i1} | D_i=1] - \\
+    &\hspace{2em}\left( E[Y_{i0} | D_i=1] + E[Y_{i1} | D_i=0] - E[Y_{i0} | D_i=0] \right) \\
+    &= \left( E[Y_{i1} | D_i=1] - E[Y_{i0} | D_i=1] \right) - \\
+    &\hspace{2em}\left( E[Y_{i1} | D_i=0] - E[Y_{i0} | D_i=0] \right)
+\end{align*}
+
+This is the famous "difference-in-differences" formula. It identifies the ATT under the crucial assumption of parallel trends.
+
 
 ---
 
 ### **Graphical Illustration of DiD**
 
-
+- Tbd: Graphical Example
 
 ---
 
@@ -185,10 +293,6 @@ This is the single most important identifying assumption in DiD.
 -   The **solid red line** is the observed outcome for the treatment group.
 -   The **dotted red line** is the *counterfactual* for the treatment group, constructed by assuming its trend would have been parallel to the control group's trend.
 -   The **DiD effect** is the vertical distance between the actual outcome for the treatment group and its counterfactual outcome in the post-period.
-
----
-
-### **Lecture 10: DiD Regression Framework, Extensions, and Robustness**
 
 ---
 
@@ -212,26 +316,26 @@ Let's break down what each `\beta` represents:
 
 $Y_{it} = \beta_0 + \beta_1 Treat_i + \beta_2 Post_t + \beta_3(Treat_i \times Post_t) + \epsilon_{it}$
 
--   **\beta₀ (Intercept):** The average outcome for the **Control Group** (`Treat=0`) in the **Pre-Period** (`Post=0`).
-    -   `E[Y | Treat=0, Post=0] = \beta₀`
+-   **$\beta_0$ (Intercept):** The average outcome for the **Control Group** (`Treat=0`) in the **Pre-Period** (`Post=0`).
+    -   $E[Y | Treat=0, Post=0] = \beta_0$
 
--   **\beta₁:** The average *pre-existing difference* between the treatment and control groups in the pre-period. **This is the selection bias.**
-    -   `E[Y | Treat=1, Post=0] = \beta₀ + \beta₁`
-    -   So, `\beta₁ = E[Y | Treat=1, Post=0] - E[Y | Treat=0, Post=0]`
+-   **$\beta_1$:** The average *pre-existing difference* between the treatment and control groups in the pre-period. **This is the selection bias.**
+    -   $E[Y | Treat=1, Post=0] = \beta_0 + \beta_1$
+    -   So, $\beta_1 = E[Y | Treat=1, Post=0] - E[Y | Treat=0, Post=0]$
 
 ---
 
 ### **Interpretation of Coefficients (2/2)**
 
-`Y_iₜ = \beta₀ + \beta₁Treat_i + \beta₂Postₜ + \beta₃(Treat_i × Postₜ) + ε_iₜ`
+$Y_{it} = \beta_0 + \beta_1Treat_i + \beta_2Post_t + \beta_3(Treat_i × Post_t) + \epsilon_{it}$
 
--   **\beta₂:** The average change in the outcome for the **Control Group** from the pre- to the post-period. **This is the secular trend.**
-    -   `E[Y | Treat=0, Post=1] = \beta₀ + \beta₂`
-    -   So, `\beta₂ = E[Y | Treat=0, Post=1] - E[Y | Treat=0, Post=0]`
+-   **$\beta_2$:** The average change in the outcome for the **Control Group** from the pre- to the post-period. **This is the secular trend.**
+    -  $E[Y | Treat=0, Post=1] = \beta_0 + \beta_2$
+    -  So, $\beta_2 = E[Y | Treat=0, Post=1] - E[Y | Treat=0, Post=0]$
 
--   **\beta₃ (The Interaction Term):** **This is the DiD estimator!** It's the additional change in the outcome for the Treatment Group, above and beyond the secular trend.
+-   **$\beta_3$ (The Interaction Term):** **This is the DiD estimator!** It's the additional change in the outcome for the Treatment Group, above and beyond the secular trend.
     -   It is the causal effect of interest.
-    -   `\beta₃ = (E[Y|T=1,P=1] - E[Y|T=1,P=0]) - (E[Y|T=0,P=1] - E[Y|T=0,P=0])`
+    -   $\beta_3 = (E[Y|T=1,P=1] - E[Y|T=1,P=0]) - (E[Y|T=0,P=1] - E[Y|T=0,P=0])$
 
 ---
 
@@ -239,7 +343,7 @@ $Y_{it} = \beta_0 + \beta_1 Treat_i + \beta_2 Post_t + \beta_3(Treat_i \times Po
 
 Why bother with regression instead of just calculating the four means?
 
-1.  **Standard Errors:** Regression automatically provides standard errors, t-statistics, and p-values for your DiD estimate (`\beta₃`), allowing for statistical inference.
+1.  **Standard Errors:** Regression automatically provides standard errors, t-statistics, and p-values for your DiD estimate ($\beta_3$), allowing for statistical inference.
 
 2.  **Adding Covariates:** It is easy to add control variables to the model to increase precision and make the parallel trends assumption more plausible.
 
@@ -251,9 +355,9 @@ Why bother with regression instead of just calculating the four means?
 
 We can add a vector of control variables, `X`, to the regression.
 
-```
-Y_iₜ = \beta₀ + \beta₁Treat_i + \beta₂Postₜ + \beta₃(Treat_i × Postₜ) + γ'X_iₜ + ε_iₜ
-```
+$$
+Y_{it} = \beta_0 + \beta_1Treat_i + \beta_2Post_t + \beta_3(Treat_i × Post_t) + \gamma'X_{it} + \epsilon_{it}
+$$
 
 -   **Purpose:** To control for observable characteristics that might differ between the groups and affect trends in the outcome.
 -   This helps strengthen the parallel trends assumption. It becomes "parallel trends *conditional on X*".
@@ -271,22 +375,16 @@ We can't prove the assumption, but we can build evidence for it. This requires d
 
 ---
 
-### **Visualizing a Pre-Trend Check**
-
-
-
-*The key is to check if the lines are parallel in the t-3, t-2, and t-1 periods.*
-
----
-
 ### **Statistical "Tests" for Parallel Trends**
 
 If you have multiple pre-treatment periods, you can run a "placebo" test.
 
 -   **Idea:** Run a DiD analysis using only pre-treatment data. For instance, define a fake "treatment" in period t-2 and use t-3 as the "pre" period.
 -   **In a regression:** Interact the treatment group dummy with time-period dummies for *each pre-treatment period*.
-    `Y = ... + δ₋₂ (Treat × PrePeriod₋₂) + δ₋₁ (Treat × PrePeriod₋₁) + \beta₃(Treat × Post) ...`
--   **Result:** The coefficients `δ₋₂` and `δ₋₁` should be small and statistically insignificant (not different from zero). This shows there was no pre-existing differential trend.
+    $Y_{it} = \dots + \delta_{-2} (Treat \times PrePeriod_{-2}) + \delta_{-1} (Treat \times PrePeriod_{-1}) + \beta_3(Treat \times Post) + \epsilon_{it}$
+-   **Result:** The coefficients $\delta_{-2}$ and $\delta_{-1}$ should be small and statistically insignificant (not different from zero). This shows there was no pre-existing differential trend.
+
+- Could also test this using a model like $Y_{it} = \alpha_t + \sum \delta_{k} (Treat \times 1(t=k)) + \beta_1 Treat$ for $k \in \{-T, \dots, T\}$ and test the coefficients on $k=\{-T, \dots, 0\}$
 
 ---
 
@@ -296,7 +394,7 @@ The real world is often messier than 2x2.
 
 -   **Staggered Adoption:** Different units receive the treatment at different times.
     -   *Example:* State A adopts a policy in 2010, State B in 2012, State C never does.
--   The simple 2x2 `Treat × Post` model is no longer sufficient and can be biased.
+-   The simple 2x2 Treat $\times$ Post model is no longer sufficient and can be biased.
 -   Modern methods (e.g., Callaway & Sant'Anna, Sun & Abraham) address these issues by using better defined control groups for each treated unit.
 
 ---
@@ -308,8 +406,8 @@ These plots are standard for visualizing results from models with multiple perio
 -   **X-axis:** Time relative to the treatment event (e.g., -3, -2, -1, 0, +1, +2 years).
 -   **Y-axis:** The estimated DiD coefficient for that relative time period.
 -   **Interpretation:**
-    -   Coefficients for **pre-periods** (t < 0) should be near zero (validates parallel trends).
-    -   Coefficients for **post-periods** (t ≥ 0) show the dynamic causal effect of the policy over time.
+    -   Coefficients for **pre-periods** ($t < 0$) should be near zero (validates parallel trends).
+    -   Coefficients for **post-periods** ($t \geq 0$) show the dynamic causal effect of the policy over time.
 
 ---
 
@@ -353,7 +451,90 @@ A famous issue where the parallel trends assumption is violated in a specific wa
 
 ---
 
+### **Staggered Adoption**
+
+Many modern DiD settings involve \textbf{staggered treatment adoption}, where different units get treated at different times.
+    
+The standard tool for this has been the two-way fixed effects (TWFE) regression:
+
+  \begin{equation*}
+      Y_{it} = \alpha_i + \lambda_t + \beta^{TWFE} \cdot D_{it} + \epsilon_{it}
+  \end{equation*}
+  where $D_{it}=1$ if unit $i$ is treated at time $t$.
+    
+Recent research (Goodman-Bacon, 2021; de Chaisemartin \& D'Haultfœuille, 2020) shows that $\hat{\beta}^{TWFE}$ is a weighted average of all possible 2x2 DiD estimators.
+        
+\textbf{Crucially, some of these comparisons are "bad"}: they use already-treated units as controls for later-treated units.
+
+---
+
+### **Why Bad Comparisons Are A Problem?**
+
+Imagine Cohort 2010 gets treated in 2010 and Cohort 2012 gets treated in 2012.
+\begin{itemize}
+    \item To estimate the effect on Cohort 2012 in the year 2012, TWFE implicitly uses Cohort 2010 as part of the "control" group.
+    \item But Cohort 2010 has already been treated for two years!
+\end{itemize}
+
+This is only valid if treatment effects are constant across cohorts and time. If effects are \textbf{heterogeneous} or \textbf{dynamic} (e.g., they grow over time), this comparison is contaminated.
+
+\begin{itemize}
+\item The resulting $\hat{\beta}^{TWFE}$ can be a meaningless average, sometimes with negative weights, and may not represent any true ATT.
+\end{itemize}
+
+---
+
+
+### **Sun and Abraham (2021) Solution**
+
+The core idea is to avoid aggregation and bad comparisons.
+
+\textbf{Step 1: Define Cohorts}
+\begin{itemize}
+    \item A cohort, $G=g$, is the group of all units that are first treated at the same time period $g$.
+    \item Let $G=\infty$ (or $G=C$) be the \textbf{never-treated} group.
+\end{itemize}
+
+\vspace{1em}
+
+\textbf{Step 2: Estimate Cohort-Specific ATTs}
+\begin{itemize}
+    \item Instead of one $\beta$, estimate a separate effect for \textit{each cohort} $g$ at \textit{each time period} $\ell$.
+    \item Use only \textbf{clean controls}: units that are not yet treated. The never-treated group ($G=C$) is the cleanest control.
+\end{itemize}
+
+---
+
+### **Identification of Cohort-Specific ATT**
+
+The estimand of interest is the Average Treatment Effect for cohort $g$ at calendar time $\ell$ (where $\ell \ge g$). We denote this $\text{ATT}(g, \ell)$.
+
+For each pair $(g, \ell)$, $\text{ATT}(g, \ell)$ is identified by a simple 2x2 DiD comparing cohort $g$ to the clean control group ($C$) between the pre-treatment period ($g-1$) and period $\ell$:
+
+\begin{align*}
+    \widehat{\text{ATT}}(g, \ell) = \Big( &E[Y_\ell | G=g] - E[Y_{g-1} | G=g] \Big) \\
+    - \Big( &E[Y_\ell | G=C] - E[Y_{g-1} | G=C] \Big)
+\end{align*}
+
+\textbf{Key Assumption}: A cohort-specific parallel trends assumption. In the absence of treatment, the outcome for cohort $g$ would have evolved in parallel to the outcome for the never-treated (or not-yet-treated) group.
+
+---
+
+### **Bias-variance trade-off**
+
+The S\&A framework is flexible. You can choose your control group to manage the bias-variance trade-off:
+
+\begin{itemize}
+    \item \textbf{Option A: Never-Treated Controls.} This is the cleanest option, requiring the weakest parallel trends assumption (only vs. never-treated). It is preferred if the group is large enough.
+    
+    \item \textbf{Option B: Not-Yet-Treated Controls.} The estimator can use all currently untreated units as a time-varying control group. This \textbf{substantially increases statistical power} and reduces variance. The cost is a slightly stronger (but still plausible) parallel trends assumption against these not-yet-treated units.
+\end{itemize}
+
+
+---
+
 ### **Questions?**
+
 
 
 
