@@ -1,0 +1,541 @@
+---
+title: "Statistics and Probability"
+author: "Bas Machielsen"
+date: "`r Sys.Date()`"
+output: 
+  beamer_presentation:
+    includes:
+      in_header: "preamble.tex"
+classoption: "aspectratio=169"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, out.width=250)
+library(ggplot2)
+library(gridExtra)
+```
+
+## Agenda
+
+This presentation provides a refresher on the fundamental statistical concepts that form the bedrock of econometrics.
+
+1.  Basic Probability Theory
+2.  Conditional Probability
+3.  Random Variables
+4.  Discrete Probability Distributions
+5.  Continuous Probability Distributions
+6.  The Normal Distribution
+7.  Covariance and Correlation
+8.  Sampling
+9.  Sampling Distributions
+10. The Central Limit Theorem
+11. Estimation
+12. Hypothesis Testing
+
+# 1. Basic Probability Theory
+
+## Experiments, Outcomes, and Sample Spaces
+
+- Experiment: A process or action whose result is uncertain.
+  - *Example:* Rolling a six-sided die.
+  - *Example:* Surveying a household to ask about their income.
+  - *Example:* Observing next year's GDP growth rate.
+
+- Outcome: A single possible result of an experiment.
+  - *Example:* The die shows a $4$.
+  -  *Example:* The household's income is $52,000$.
+  - *Example:* GDP growth is $2.3%$.
+
+- Sample Space (S): The set of *all possible* outcomes of an experiment.
+  - *Example (Die Roll):* $S = {1, 2, 3, 4, 5, 6}$
+  - *Example (Household Income)*: $S \in [0, \infty]$
+
+## Events
+
+- Event: A subset of the sample space; a collection of one or more outcomes. We can calculate probabilities for events.
+
+**Using the die roll example where $S = {1, 2, 3, 4, 5, 6}$:**
+
+*   **Event A:** The outcome is an even number.
+    *   $A = {2, 4, 6}$
+    *   The probability of Event A is $P(A) = 3 / 6 = 0.5$
+
+*   **Event B:** The outcome is greater than 4.
+    *   $B = {5, 6}$
+    *   The probability of Event B is $P(B) = 2 / 6 \approx 0.33$
+    
+*   **The intersection of A and B ($A \cap B$):** The outcome is even AND greater than 4.
+    *   $A \cap B = {6}$
+    *   $P(A \cap B) = 1 / 6$
+
+# 2. Conditional Probability
+
+## The Probability of A, Given B
+
+**Conditional Probability** is the probability of an event occurring, given that another event has already occurred.
+
+The probability of event A occurring given that event B has occurred is written as **$P(A|B)$**.
+
+Definition:
+
+$$P(A|B) = \frac{P(A \cap B)}{P(B)}$$
+
+**Intuition:** We are restricting our sample space. We know $B$ happened, so the "universe" of possible outcomes is now just $B$. Within that new universe, we want to know the chance that $A$ also happens.
+
+## Conditional Probability: Example
+
+Let's use our die roll example again:
+$S = {1, 2, 3, 4, 5, 6}$, $A = \{\text{Outcome is an even number}\} = \{2, 4, 6\}$, $B = \{\text{Outcome is greater than 4}\} = \{5, 6\}$
+
+**Question:** What is the probability that the number is even, *given* that we know it is greater than 4? We want to find $P(A|B)$.
+
+1.  **Find $P(B)$:** The probability of rolling a number greater than 4 is $P(B) = 2/6$.
+2.  **Find $P(A \cap B)$:** The probability of rolling a number that is even AND greater than 4 is $P({6}) = 1/6$.
+3.  **Apply the formula:**
+    $$P(A|B) = \frac{P(A \cap B)}{P(B)} = \frac{1/6}{2/6} = \frac{1}{2} = 0.5$$
+    
+**Intuition Check:** If we know the outcome is in $B = {5, 6}$, there are only two possibilities. Of these, only one ($6$) is even. So the probability is $1/2$. It matches!
+
+# 3. Random Variables
+
+## Definition and Types
+
+Random Variable (RV): A variable whose value is a numerical outcome of a random phenomenon. We use capital letters (e.g., $X$, $Y$) to denote a random variable. There are two main types of random variables:
+
+Discrete Random Variable: A variable that can only take on a finite or countably infinite number of distinct values.
+
+  - *Example:* The number of heads in three coin flips ($X$ can be 0, 1, 2, 3).
+  - *Example:* The number of defaults in a portfolio of 100 loans ($X$ can be 0, 1, ..., 100).
+
+Continuous Random Variable: A variable that can take on any value within a given range.
+
+  - *Example:* The exact price of a stock tomorrow.
+  - *Example:* The annual percentage growth in GDP ($Y$ could be 2.1%, 2.11%, 2.113%...).
+
+# 4. Distributions for Discrete RVs
+
+## Probability Mass Function (PMF)
+
+For a discrete random variable $X$, the **Probability Mass Function (PMF)** gives the probability that $X$ is exactly equal to some value $x$.
+
+$$f(x) = P(X = x)$$
+
+A PMF has two key properties:
+1. $0 \leq f(x) \leq 1$ for all $x$.
+2. $\sum f(x) = 1$ (The sum of probabilities over all possible values is 1).
+
+## PMF Example
+
+**Example:** Let $X$ be the outcome of a fair die roll. The PMF is:
+$f(1) = 1/6$, $f(2) = 1/6$, \dots, $f(6) = 1/6$.
+
+```{r pmf_plot, fig.align='center'}
+data.frame(x = 1:6, p = rep(1/6, 6)) |>
+  ggplot(aes(x = factor(x), y = p)) +
+  geom_col(fill = "steelblue", width = 0.7) +
+  labs(title = "PMF for a Fair Die Roll", x = "Outcome (x)", y = "P(X = x)") +
+  theme_minimal(base_size = 18)
+```
+
+## Expected Value
+
+The **Expected Value** of a discrete random variable $X$, denoted $E[X]$ or $\mu$, is the long-run average value of the variable. It's a weighted average of the possible outcomes, where the weights are the probabilities.
+
+Definition:
+$$E[X] = \mu = \sum_x x \cdot P(X=x)$$
+
+**Example:** Expected value of a fair die roll.
+$E[X] = (1 \times 1/6) + (2 \times 1/6) + (3 \times 1/6) + (4 \times 1/6) + (5 \times 1/6) + (6 \times 1/6)$
+$E[X] = (1+2+3+4+5+6) / 6 = 21 / 6 = 3.5$
+
+Note: The expected value doesn't have to be a possible outcome!
+
+## Variance and Standard Deviation
+
+**Variance**, denoted $Var(X)$ or $\sigma^2$, measures the spread or dispersion of a random variable around its mean. A larger variance means the outcomes are more spread out.
+
+Definition:
+
+$$Var(X) = \sigma^2 = E[(X - \mu)^2] = \sum_x (x-\mu)^2 \cdot P(X=x)$$
+
+**Standard Deviation**, $SD(X)$ or $\sigma$, is the square root of the variance. It's often easier to interpret because it's in the same units as the random variable itself.
+
+$$SD(X) = \sigma = \sqrt{Var(X)}$$
+
+## Example: The Bernoulli Distribution
+
+The **Bernoulli distribution** is a fundamental discrete distribution for any experiment with two outcomes, typically labeled "success" (1) and "failure" (0).
+
+Let $X$ be a Bernoulli random variable where $P(X=1) = p$ and $P(X=0) = 1-p$.
+
+- **Econometric relevance:** Models binary outcomes like employed/unemployed, default/no-default, buy/don't-buy.
+
+- **Expected Value:**
+    $E[X] = (1 \times p) + (0 \times (1-p)) = p$
+
+- **Variance:**
+\begin{align*}
+  Var(X) &= (1-p)^2 \times p + (0-p)^2 \times (1-p) \\
+  \qquad &= (1-p)^2 \times p + p^2 \times (1-p) \\
+  \qquad &= p(1-p) \times [(1-p) + p] = p(1-p)
+\end{align*}
+
+# 5. Distributions for Continuous RVs
+
+## Probability Density Function (PDF)
+
+For a **continuous** random variable, the probability of it taking on any *single* specific value is zero! $P(X = x) = 0$. Why? Because there are infinitely many possible values.
+
+Instead, we use a **Probability Density Function (PDF)**, $f(x)$.
+
+**Key Idea:** Probability is represented by the **area under the curve** of the PDF.
+
+$P(a \leq X \leq b)$ = Area under $f(x)$ between $a$ and $b$.
+
+## Example PDF
+
+```{r pdf_plot, fig.align='center'}
+# Generate data for a normal curve
+x <- seq(-4, 4, length.out=200)
+y <- dnorm(x)
+df <- data.frame(x, y)
+# Create a filled area
+area_df <- subset(df, x >= -1 & x <= 1.5)
+
+ggplot(df, aes(x, y)) + 
+  geom_line(size = 1) +
+  geom_area(data = area_df, fill = "skyblue", alpha = 0.5) +
+  annotate("text", x = 0.25, y = 0.1, label = "P(a < X < b)", size = 6) +
+  annotate("segment", x = -1, xend = -1, y = 0, yend = dnorm(-1)) +
+  annotate("segment", x = 1.5, xend = 1.5, y = 0, yend = dnorm(1.5)) +
+  annotate("text", x = -1, y = -0.02, label = "a", size = 6) +
+  annotate("text", x = 1.5, y = -0.02, label = "b", size = 6) +
+  labs(title = "Probability as Area Under the PDF Curve", x = "x", y = "Density f(x)") +
+  theme_minimal(base_size = 18)
+```
+
+## Cumulative Distribution Function (CDF)
+
+The **Cumulative Distribution Function (CDF)**, $F(x)$, gives the probability that a random variable $X$ is *less than or equal to* a certain value $x$. It's a unifying concept for both discrete and continuous variables.
+
+$$F(x) = P(X \le x)$$
+
+Properties:
+
+  - $F(x)$ is non-decreasing.
+  - $F(x)$ ranges from 0 to 1.
+  - For continuous RVs, $P(a \leq X \leq b) = F(b) - F(a)$.
+
+## Example CDF
+
+```{r cdf_plots, fig.align='center'}
+# Discrete CDF (Die Roll)
+p1 <- data.frame(x = 0:7, y = c(0, 1/6, 2/6, 3/6, 4/6, 5/6, 1, 1)) |>
+  ggplot(aes(x=x, y=y)) + geom_step() + xlim(0, 7) + ylim(0,1) +
+  labs(title = "CDF of a Discrete RV (Die Roll)", x="x", y="F(x) = P(X < x)") +
+  theme_minimal(base_size = 14)
+
+# Continuous CDF (Normal)
+p2 <- ggplot(data.frame(x = c(-3, 3)), aes(x)) +
+  stat_function(fun = pnorm, geom = "line", size=1.2) + ylim(0,1) +
+  labs(title = "CDF of a Continuous RV (Normal)", x="x", y="F(x) = P(X < x)") +
+  theme_minimal(base_size = 14)
+
+grid.arrange(p1, p2, ncol=2)
+```
+
+
+# 6. The Normal Distribution
+
+## Properties of the Normal Distribution
+
+The **Normal Distribution** is the most important probability distribution in statistics and econometrics. It is defined by its mean $\mu$ and its variance $\sigma^2$. We write $X \sim N(\mu, \sigma^2)$.
+
+**Properties:**
+
+- **Bell-shaped** and symmetric around its mean $\mu$.
+- Mean = Median = Mode.
+- The curve is completely determined by $\mu$ (center) and $\sigma$ (spread).
+
+## Example Normal Distribution
+
+```{r normal_dist_plot, fig.align='center'}
+ggplot(data.frame(x = c(-5, 15)), aes(x)) +
+  stat_function(fun = dnorm, args = list(mean = 5, sd = 2), aes(color = "N(5, 4)"), size = 1.2) +
+  stat_function(fun = dnorm, args = list(mean = 5, sd = 3), aes(color = "N(5, 9)"), size = 1.2) +
+  stat_function(fun = dnorm, args = list(mean = 8, sd = 2), aes(color = "N(8, 4)"), size = 1.2) +
+  scale_color_brewer(palette = "Dark2", name = "Distribution") +
+  labs(title = "Normal Distributions", y = "Density", x = "x") +
+  theme_minimal(base_size = 18)
+```
+
+## The Standard Normal Distribution (Z)
+
+The **Standard Normal Distribution** is a special case of the normal distribution with a mean of 0 and a variance of 1. $Z \sim N(0, 1)$.
+
+**Standardization (creating a Z-score):**
+We can convert any normally distributed random variable $X \sim N(\mu, \sigma^2)$ into a standard normal variable $Z$ using the formula:
+
+$$ Z = \frac{X - \mu}{\sigma} $$
+
+**Why is this useful?**
+It allows us to use a single table (or software function) to find probabilities for *any* normal distribution. The Z-score tells us how many standard deviations an observation $X$ is away from its mean $\mu$.
+
+## Finding Probabilities
+
+Historically, probabilities for the standard normal distribution were found using **Z-tables**, which provide $P(Z \leq z)$.
+
+**Today, we use software like R, Stata, or Python.**
+
+**Example:** Suppose annual returns on a mutual fund are normally distributed with a mean of 8% and a standard deviation of 10%. $X \sim N(0.08, 0.01)$. What's the probability of a negative return, $P(X < 0)$?
+
+1.  **Standardize the value:**
+    $Z = (0 - 0.08) / 0.10 = -0.8$
+
+2.  **Find the probability:** We need to find $P(X < 0) = P(\frac{X - 0.08}{0.01} < \frac{0-0.08}{0.01}) = P(Z < -0.8)$.
+
+## Finding Probabilities (Cont.)
+
+3.  **Using R, Python or Stata:** The $pnorm()$ and $norm.cdf$ functions give the area to the left (the CDF).
+
+    ```{r echo=T}
+    pnorm(-0.8, mean = 0, sd = 1)
+    ```
+    
+    ```{python, echo=T}
+    from scipy.stats import norm
+    norm.cdf(-0.8)
+    ```
+
+So, there is about a **21.2%** chance of experiencing a negative return.
+
+# 7. Covariance and Correlation
+
+## Covariance
+
+**Covariance** measures the joint variability of two random variables. It tells us the *direction* of the linear relationship.
+
+Definition:
+$$ Cov(X, Y) = \sigma_{XY} = E[(X-\mu_X)(Y-\mu_Y)] $$
+
+- $Cov(X, Y) > 0$: $X$ and $Y$ tend to move in the same direction. When $X$ is above its mean, $Y$ tends to be above its mean.
+- $Cov(X, Y) < 0$: $X$ and $Y$ tend to move in opposite directions.
+- $Cov(X, Y) = 0$: No linear relationship between $X$ and $Y$.
+
+**Drawback:** The magnitude of covariance is hard to interpret because it depends on the units of $X$ and $Y$. (e.g., Cov(GDP, Consumption) will be a huge number).
+
+## Correlation
+
+The **Correlation Coefficient ($\rho$ or $r$)** is a standardized version of covariance that measures both the *strength* and *direction* of the linear relationship between two variables.
+
+Definition:
+$$ \rho_{XY} = \frac{Cov(X, Y)}{\sigma_X \sigma_Y} $$
+
+**Properties:**
+
+  - Ranges from **-1 to +1**.
+  - $\rho = +1$: Perfect positive linear relationship.
+  - $\rho = -1$: Perfect negative linear relationship.
+  - $\rho = 0$: No linear relationship.
+  - It is unitless, making it easy to interpret and compare.
+
+## Correlation $\neq$ Causation
+
+**This is the most important lesson in all of econometrics.**
+
+A strong correlation between two variables does not mean that one *causes* the other. There could be:
+
+1.  **Reverse Causality:** $Y$ causes $X$.
+2.  **Omitted Variable Bias (Lurking Variable):** A third variable $Z$ causes both $X$ and $Y$.
+
+**Classic Example:**
+*   Ice cream sales ($X$) and drowning deaths ($Y$) are highly positively correlated.
+*   Does eating ice cream cause drowning? No.
+*   The omitted variable is **hot weather ($Z$)**, which causes people to both buy more ice cream and swim more (leading to more drownings).
+
+---
+
+# 8. Introduction to Inference and Sampling
+
+## Population vs. Sample
+
+<hr>
+
+**Population**
+:   The entire group of individuals, objects, or data points that we are interested in studying.
+    *   *Example:* All households in the United States.
+    *   *Example:* All firms listed on the New York Stock Exchange.
+
+**Sample**
+:   A subset of the population from which we actually collect data.
+    *   *Example:* A survey of 2,000 U.S. households.
+    *   *Example:* The stock prices of 50 firms from the NYSE.
+
+**Why sample?** It's often impossible or too expensive to collect data on the entire population. We use samples to make inferences about the population.
+
+## Parameters vs. Statistics
+
+<hr>
+
+**Parameter**
+:   A numerical characteristic of a **population**. These are typically unknown and what we want to estimate. They are considered fixed values.
+    *   **Examples:** Population mean ($\mu$), population variance ($\sigma^2$), population correlation ($\rho$).
+
+**Statistic**
+:   A numerical characteristic of a **sample**. We calculate statistics from our data. A statistic is a random variable, as its value depends on the particular sample drawn.
+    *   **Examples:** Sample mean ($\bar{x}$), sample variance ($s^2$), sample correlation ($r$).
+
+The core idea of inference is to use a **sample statistic** to learn about a **population parameter**.
+
+## Simple Random Sampling
+
+<hr>
+
+**Simple Random Sampling (SRS)** is the most basic sampling method.
+
+**Definition:** A sample of size $n$ where every possible sample of that size has an equal chance of being selected, and every individual in the population has an equal chance of being included.
+
+**Importance:** SRS is the ideal. Statistical methods (like the ones we're learning) are built on the assumption of random sampling. If a sample is not drawn randomly, our inferences may be biased and incorrect.
+
+---
+
+# 9. The Concept of a Sampling Distribution
+
+## The Distribution of a Statistic
+
+<hr>
+
+This is a crucial, but sometimes tricky, concept.
+
+**Imagine this thought experiment:**
+1.  There is a population with an unknown mean $\mu$.
+2.  We take a random sample of size $n$ (e.g., n=100) and calculate its sample mean, $\bar{x}_1$.
+3.  We take a *different* random sample of size $n$ and get a different sample mean, $\bar{x}_2$.
+4.  We repeat this process 10,000 times, getting $\bar{x}_1$, $\bar{x}_2$, $\dots$, $\bar{x}_{10000}$.
+
+The **Sampling Distribution** of the sample mean is the probability distribution of all these possible $\bar{x}$ values. It's the distribution of a statistic, not of the original data.
+
+```{r sampling_dist_plot, fig.align='center'}
+# Simulate it
+pop <- rnorm(100000, mean = 50, sd = 10) # a "population"
+sample_means <- replicate(5000, mean(sample(pop, size = 30))) # 5000 sample means
+
+p1 <- ggplot(data.frame(x=pop), aes(x)) + geom_density(fill="red", alpha=0.4) + labs(title="1. Population Distribution (mu=50)")
+p2 <- ggplot(data.frame(x=sample_means), aes(x)) + geom_density(fill="blue", alpha=0.4) + labs(title="2. Sampling Distribution of xbar (n=30)", subtitle="Notice it's centered at μ and less spread out")
+
+grid.arrange(p1, p2, ncol=2)
+```
+
+---
+
+# 10. The Central Limit Theorem (CLT)
+
+## The Most Important Theorem in Statistics
+
+<hr>
+
+The **Central Limit Theorem (CLT)** states:
+
+If you take a sufficiently large random sample ($n \geq 30$ is a common rule of thumb) from a population with mean $\mu$ and standard deviation $\sigma$, the sampling distribution of the sample mean $\bar{x}$ will be approximately normally distributed, *regardless of the original population's distribution*.
+
+Furthermore, the mean of this sampling distribution will be the population mean $\mu$, and its standard deviation (called the **standard error**) will be $\sigma / \sqrt n$.
+
+$$\bar{X} \approx N\left(\mu, \frac{\sigma^2}{n}\right)$$
+
+## Why the CLT is a "Miracle"
+
+<hr>
+
+**The implications of the CLT are profound:**
+
+1.  **We can use the normal distribution for inference on the mean even if the underlying data is not normal.** Many economic variables (like income) are highly skewed, but the CLT lets us work with their sample means.
+
+2.  **It provides a precise formula for the variance of the sample mean ($\sigma^2/n$).** This shows that as our sample size $n$ increases, the sample mean $\bar{x}$ becomes a more precise estimator of the population mean $\mu$ (its sampling distribution gets narrower).
+
+The CLT is the foundation that allows us to build confidence intervals and conduct hypothesis tests for the mean.
+
+---
+
+# 11. Introduction to Estimation
+
+## Point Estimators
+
+<hr>
+
+An **estimator** is a rule (a formula) for calculating an estimate of a population parameter based on sample data. The value it produces is called an **estimate**.
+
+A **Point Estimator** is a formula that produces a single value as the estimate.
+
+**Common Point Estimators:**
+*   The sample mean $\bar{x}$ is a point estimator for the population mean $\mu$.
+*   The sample proportion $\hat{p}$ is a point estimator for the population proportion $p$.
+*   The sample variance $s^2$ is a point estimator for the population variance $\sigma^2$.
+
+## Desirable Properties of Estimators
+
+<hr>
+
+How do we know if an estimator is "good"? We look for three properties (conceptually):
+
+1.  **Unbiasedness**
+    *   An estimator is unbiased if its expected value is equal to the true population parameter. $E[\theta]=\theta$.
+    *   *Analogy:* On average, the shots hit the center of the target. There's no systematic over- or under-estimation.
+
+2.  **Efficiency**
+    *   Among all unbiased estimators, the most efficient one is the one with the smallest variance.
+    *   *Analogy:* The shots are tightly clustered around the center. It's a precise estimator.
+
+3.  **Consistency**
+    *   An estimator is consistent if, as the sample size $n$ approaches infinity, the value of the estimator converges to the true parameter value.
+    *   *Analogy:* The more information you get, the closer you get to the truth.
+
+---
+
+# 12. Introduction to Hypothesis Testing
+
+## The Logic of a Statistical Test
+
+<hr>
+
+**Hypothesis Testing** is a formal procedure for checking whether our sample data provides convincing evidence against a preconceived claim about the population.
+
+**The Logic: Proof by Contradiction**
+1.  We start by assuming something is true about the population (the **Null Hypothesis**).
+2.  We then look at our sample data.
+3.  We ask: "If the null hypothesis were true, how likely is it that we would get sample data like this?"
+4.  If our sample data is very unlikely under the null hypothesis, we reject our initial assumption in favor of an alternative.
+
+## Null and Alternative Hypotheses
+
+<hr>
+
+Every hypothesis test has two competing hypotheses:
+
+**Null Hypothesis ($H_0$)**
+:   The claim being tested. It's the "status quo" or "no effect" hypothesis. It always contains an equality sign ($=$, $\leq$, or $\geq$).
+    *   *Example:* The new drug has no effect on blood pressure ($\mu_change = 0$).
+    *   *Example:* The mean income in a region is $50,000$ ($\mu = 50000$).
+
+**Alternative Hypothesis ($H_A$ or $H_1$)**
+:   The claim we are trying to find evidence *for*. It's what we conclude if we reject the null hypothesis. It never contains an equality sign ($\neq$, $<$, or $>$).
+    *   *Example:* The new drug does have an effect ($\mu_{change} \neq 0$).
+    *   *Example:* The mean income is not $50,000$ ($\mu \neq 50000$).
+
+## Test Statistics and P-Values (Conceptual)
+
+<hr>
+
+How do we decide whether our data is "unlikely"?
+
+**Test Statistic**
+:   A value calculated from sample data that measures how far our sample statistic (e.g., $\bar{x}$) is from the parameter value claimed by the null hypothesis ($\mu_0$). It's often standardized, like a Z-score.
+    $$\text{Test Statistic} = \frac{\text{Sample Statistic} - \text{Null Hypothesis Value}}{\text{Standard Error}}$$
+
+**P-Value**
+:   The probability of observing a test statistic as extreme (or more extreme) than the one calculated, *assuming the null hypothesis is true*.
+    *   **Small P-Value (e.g., < 0.05):** The observed data is very unlikely if $H_0$ were true. We **reject $H_0$**. The evidence supports $H_A$.
+    *   **Large P-Value (e.g., > 0.05):** The observed data is plausible if $H_0$ were true. We **fail to reject $H_0$**. There is not enough evidence to support $H_A$.
+
+---
+
+## Questions?
