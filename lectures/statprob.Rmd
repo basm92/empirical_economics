@@ -13,6 +13,38 @@ classoption: "aspectratio=169"
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, out.width=250)
 library(ggplot2)
 library(gridExtra)
+# Helper to create data
+create_norm_data <- function(mean = 0, sd = 1) {
+  x <- seq(mean - 4 * sd, mean + 4 * sd, length.out = 400)
+  y <- dnorm(x, mean, sd)
+  data.frame(x, y)
+}
+# Helper function to plot the distribution with shaded rejection regions
+plot_test <- function(norm_data, crit_vals, title) {
+  
+  # Create data for shading each tail INDEPENDENTLY
+  shade_left_tail <- subset(norm_data, x < crit_vals[1])
+  shade_right_tail <- subset(norm_data, x > crit_vals[2])
+
+  ggplot(norm_data, aes(x = x, y = y)) +
+    geom_line(color = "black", size = 1) +
+    # Plot the left tail area (if it exists)
+    geom_area(data = shade_left_tail, aes(y = y), fill = "firebrick", alpha = 0.5) +
+    # Plot the right tail area (if it exists)
+    geom_area(data = shade_right_tail, aes(y = y), fill = "firebrick", alpha = 0.5) +
+    labs(
+      title = title,
+      x = "Test Statistic (e.g., Z-score)",
+      y = ""
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      panel.grid = element_blank()
+    )
+}
+
 ```
 
 ## Agenda
@@ -569,11 +601,10 @@ How do we know if an estimator is "good"? We look for three properties (conceptu
 
 ## The Logic of a Statistical Test
 
-<hr>
-
 **Hypothesis Testing** is a formal procedure for checking whether our sample data provides convincing evidence against a preconceived claim about the population.
 
 **The Logic: Proof by Contradiction**
+
 1.  We start by assuming something is true about the population (the **Null Hypothesis**).
 2.  We then look at our sample data.
 3.  We ask: "If the null hypothesis were true, how likely is it that we would get sample data like this?"
@@ -581,35 +612,132 @@ How do we know if an estimator is "good"? We look for three properties (conceptu
 
 ## Null and Alternative Hypotheses
 
-<hr>
-
 Every hypothesis test has two competing hypotheses:
 
-**Null Hypothesis ($H_0$)**
-:   The claim being tested. It's the "status quo" or "no effect" hypothesis. It always contains an equality sign ($=$, $\leq$, or $\geq$).
-    *   *Example:* The new drug has no effect on blood pressure ($\mu_change = 0$).
-    *   *Example:* The mean income in a region is $50,000$ ($\mu = 50000$).
+**Null Hypothesis ($H_0$)**: The claim being tested. It's the "status quo" or "no effect" hypothesis. It always contains an equality sign ($=$, $\leq$, or $\geq$).
 
-**Alternative Hypothesis ($H_A$ or $H_1$)**
-:   The claim we are trying to find evidence *for*. It's what we conclude if we reject the null hypothesis. It never contains an equality sign ($\neq$, $<$, or $>$).
-    *   *Example:* The new drug does have an effect ($\mu_{change} \neq 0$).
-    *   *Example:* The mean income is not $50,000$ ($\mu \neq 50000$).
+  - *Example:* The new drug has no effect on blood pressure ($\mu_{change} = 0$).
+  - *Example:* The mean income in a region is $50,000$ ($\mu = 50000$).
+
+**Alternative Hypothesis ($H_A$ or $H_1$)**: The claim we are trying to find evidence *for*. It's what we conclude if we reject the null hypothesis. It never contains an equality sign ($\neq$, $<$, or $>$).
+
+  - *Example:* The new drug does have an effect ($\mu_{change} \neq 0$).
+  - *Example:* The mean income is not $50,000$ ($\mu \neq 50000$).
 
 ## Test Statistics and P-Values (Conceptual)
 
-<hr>
-
 How do we decide whether our data is "unlikely"?
 
-**Test Statistic**
-:   A value calculated from sample data that measures how far our sample statistic (e.g., $\bar{x}$) is from the parameter value claimed by the null hypothesis ($\mu_0$). It's often standardized, like a Z-score.
-    $$\text{Test Statistic} = \frac{\text{Sample Statistic} - \text{Null Hypothesis Value}}{\text{Standard Error}}$$
+**Test Statistic**: A value calculated from sample data that measures how far our sample statistic (e.g., $\bar{x}$) is from the parameter value claimed by the null hypothesis ($\mu_0$). It's often standardized, like a Z-score.
 
-**P-Value**
-:   The probability of observing a test statistic as extreme (or more extreme) than the one calculated, *assuming the null hypothesis is true*.
-    *   **Small P-Value (e.g., < 0.05):** The observed data is very unlikely if $H_0$ were true. We **reject $H_0$**. The evidence supports $H_A$.
-    *   **Large P-Value (e.g., > 0.05):** The observed data is plausible if $H_0$ were true. We **fail to reject $H_0$**. There is not enough evidence to support $H_A$.
+$$\text{Test Statistic} = \frac{\text{Sample Statistic} - \text{Null Hypothesis Value}}{\text{Standard Error}}$$
 
----
+**P-Value**: The probability of observing a test statistic as extreme (or more extreme) than the one calculated, *assuming the null hypothesis is true*.
+
+  - **Small P-Value (e.g., < 0.05):** The observed data is very unlikely if $H_0$ were true. We **reject $H_0$**. The evidence supports $H_A$.
+  - **Large P-Value (e.g., > 0.05):** The observed data is plausible if $H_0$ were true. We **fail to reject $H_0$**. There is not enough evidence to support $H_A$.
+
+## A Crucial Ingredient: The Standard Error
+
+How do we measure if a sample result is "surprising"? We use the **Standard Error (SE)**.
+
+**Definition:** The Standard Error of a statistic (like the sample mean) is the standard deviation of its sampling distribution. In simpler terms, it measures the typical or average distance between the sample statistic and the true population parameter.
+
+**Its Role:**
+The SE tells us how much we expect a sample mean ($\bar{x}$) to naturally vary from the true population mean ($\mu$).
+
+  - A small SE means our sample means will be tightly clustered around the true mean.
+  - A large SE means they will be more spread out.
+
+
+## One-Sided vs. Two-Sided Hypotheses
+
+Two-Sided Hypotheses tests are the most common type of test.
+
+**The Question:** Is the population parameter **different from** a specific value? (We don't care if it's higher or lower, just that it's not the same).
+
+-   **Null Hypothesis:** $H_0: \mu = \mu_0$
+-   **Alternative Hypothesis:** $H_A: \mu \neq \mu_0$
+
+
+## Rejection Region Two-Sided Test
+
+We are looking for an extreme result in **either direction**. The significance level ($\alpha$, e.g., 0.05) is split between the two tails of the distribution.
+
+```{r two-sided-plot, out.width=200}
+# Data and critical values for a two-sided test
+norm_dat <- create_norm_data()
+alpha <- 0.05
+crit_lower <- qnorm(alpha / 2)
+crit_upper <- qnorm(1 - alpha / 2)
+
+# Plot
+p <- plot_test(norm_dat, c(crit_lower, crit_upper), "Two-Sided Rejection Region")
+p + annotate("text", x = -2.5, y = 0.1, label = paste("Reject H0, alpha/2 =", alpha/2), color="firebrick") +
+    annotate("text", x = 2.5, y = 0.1, label = paste("Reject H0, alpha/2 =", alpha/2), color="firebrick")
+```
+
+## One-Sided Hypothesis Testing (Right-Tailed)
+
+**The Question:** Is the population parameter **greater than** a specific value?
+
+This is used when we have a strong reason to believe the effect can only go in one direction, or we are only interested in an effect in one direction.
+
+-   **Null Hypothesis:** $H_0: \mu \le \mu_0$
+-   **Alternative Hypothesis:** $H_A: \mu > \mu_0$
+
+## Rejection Region One-Sided Test (Right-Tailed)
+
+The entire significance level ($\alpha$) is placed in the **upper (right) tail**.
+
+```{r right-sided-plot, out.width=200}
+# Critical value for a right-tailed test
+crit_lower_right <- -Inf # No lower bound for rejection
+crit_upper_right <- qnorm(1 - alpha)
+
+# Plot
+p_right <- plot_test(norm_dat, c(crit_lower_right, crit_upper_right), "Right-Tailed Rejection Region")
+p_right + annotate("text", x = 2.5, y = 0.1, label = paste("Reject H0, alpha =", alpha), color="firebrick")
+```
+
+**Example:** Testing if a new fertilizer *increases* crop yield. We don't care if it decreases it.
+
+## One-Sided Hypothesis Testing (Left-Tailed)
+
+**The Question:** Is the population parameter **less than** a specific value?
+
+-   **Null Hypothesis:** $H_0: \mu \ge \mu_0$
+-   **Alternative Hypothesis:** $H_A: \mu < \mu_0$
+
+
+## Rejection Region One-Sided Test (Left-Tailed)
+
+The entire significance level ($\alpha$) is placed in the **lower (left) tail**.
+
+```{r left-sided-plot, out.width=200}
+# Critical value for a left-tailed test
+crit_lower_left <- qnorm(alpha)
+crit_upper_left <- Inf # No upper bound for rejection
+
+# Plot
+p_left <- plot_test(norm_dat, c(crit_lower_left, crit_upper_left), "Left-Tailed Rejection Region")
+p_left + annotate("text", x = -2.5, y = 0.1, label = paste("Reject H0, alpha =", alpha), color="firebrick")
+```
+
+**Example:** Testing if a new manufacturing process *reduces* the number of product defects.
+
+## Summary: Which Test to Use?
+
+**Golden Rule:** Unless you have a very strong, justifiable, pre-specified reason for expecting an effect in only one direction, **you should use a two-sided test.**
+
+
+| Feature             | Two-Sided Test                     | One-Sided Test                               |
+|---------------------|------------------------------------|----------------------------------------------|
+| **Key Question**    | Is there a **difference**?         | Is it **greater than** or **less than**?     |
+| **Alternative ($H_A$)** | $\mu \neq \mu_0$                   | $\mu > \mu_0$ **or** $\mu < \mu_0$           |
+| **Rejection Region**| Split into two tails               | All in one tail (left or right)              |
+| **When to Use**     | The default, conservative choice.  | Only when there is a strong prior reason or you only care about one direction. |
+| **Power**           | Less powerful.                     | More powerful (if the effect is in the hypothesized direction). |
 
 ## Questions?
+
