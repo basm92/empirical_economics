@@ -349,65 +349,57 @@ A strong correlation between two variables does not mean that one *causes* the o
 2.  **Omitted Variable Bias (Lurking Variable):** A third variable $Z$ causes both $X$ and $Y$.
 
 **Classic Example:**
-*   Ice cream sales ($X$) and drowning deaths ($Y$) are highly positively correlated.
-*   Does eating ice cream cause drowning? No.
-*   The omitted variable is **hot weather ($Z$)**, which causes people to both buy more ice cream and swim more (leading to more drownings).
 
----
+  - Ice cream sales ($X$) and drowning deaths ($Y$) are highly positively correlated.
+  - Does eating ice cream cause drowning? No.
+  - The omitted variable is **hot weather ($Z$)**, which causes people to both buy more ice cream and swim more (leading to more drownings).
+
 
 # 8. Introduction to Inference and Sampling
 
 ## Population vs. Sample
 
-<hr>
+**Population**: The entire group of individuals, objects, or data points that we are interested in studying.
 
-**Population**
-:   The entire group of individuals, objects, or data points that we are interested in studying.
-    *   *Example:* All households in the United States.
-    *   *Example:* All firms listed on the New York Stock Exchange.
+  - *Example:* All households in the United States.
+  - *Example:* All firms listed on the New York Stock Exchange.
 
-**Sample**
-:   A subset of the population from which we actually collect data.
-    *   *Example:* A survey of 2,000 U.S. households.
-    *   *Example:* The stock prices of 50 firms from the NYSE.
+**Sample**: A subset of the population from which we actually collect data.
+
+  - *Example:* A survey of 2,000 U.S. households.
+  - *Example:* The stock prices of 50 firms from the NYSE.
 
 **Why sample?** It's often impossible or too expensive to collect data on the entire population. We use samples to make inferences about the population.
 
 ## Parameters vs. Statistics
 
-<hr>
+**Parameter**: A numerical characteristic of a **population**. These are typically unknown and what we want to estimate. They are considered fixed values.
 
-**Parameter**
-:   A numerical characteristic of a **population**. These are typically unknown and what we want to estimate. They are considered fixed values.
-    *   **Examples:** Population mean ($\mu$), population variance ($\sigma^2$), population correlation ($\rho$).
+  - **Examples:** Population mean ($\mu$), population variance ($\sigma^2$), population correlation ($\rho$).
 
-**Statistic**
-:   A numerical characteristic of a **sample**. We calculate statistics from our data. A statistic is a random variable, as its value depends on the particular sample drawn.
-    *   **Examples:** Sample mean ($\bar{x}$), sample variance ($s^2$), sample correlation ($r$).
+**Statistic**: A numerical characteristic of a **sample**. We calculate statistics from our data. **A statistic is a random variable**, as its value depends on the particular sample drawn.
+
+  - **Examples:** Sample mean ($\bar{x}$), sample variance ($s^2$), sample correlation ($r$).
 
 The core idea of inference is to use a **sample statistic** to learn about a **population parameter**.
 
 ## Simple Random Sampling
 
-<hr>
-
-**Simple Random Sampling (SRS)** is the most basic sampling method.
+**Simple Random Sampling** is the most basic sampling method.
 
 **Definition:** A sample of size $n$ where every possible sample of that size has an equal chance of being selected, and every individual in the population has an equal chance of being included.
 
 **Importance:** SRS is the ideal. Statistical methods (like the ones we're learning) are built on the assumption of random sampling. If a sample is not drawn randomly, our inferences may be biased and incorrect.
 
----
 
 # 9. The Concept of a Sampling Distribution
 
 ## The Distribution of a Statistic
 
-<hr>
-
 This is a crucial, but sometimes tricky, concept.
 
 **Imagine this thought experiment:**
+
 1.  There is a population with an unknown mean $\mu$.
 2.  We take a random sample of size $n$ (e.g., n=100) and calculate its sample mean, $\bar{x}_1$.
 3.  We take a *different* random sample of size $n$ and get a different sample mean, $\bar{x}_2$.
@@ -415,24 +407,115 @@ This is a crucial, but sometimes tricky, concept.
 
 The **Sampling Distribution** of the sample mean is the probability distribution of all these possible $\bar{x}$ values. It's the distribution of a statistic, not of the original data.
 
+## Sampling Distribution Visualization
+
 ```{r sampling_dist_plot, fig.align='center'}
 # Simulate it
 pop <- rnorm(100000, mean = 50, sd = 10) # a "population"
 sample_means <- replicate(5000, mean(sample(pop, size = 30))) # 5000 sample means
 
 p1 <- ggplot(data.frame(x=pop), aes(x)) + geom_density(fill="red", alpha=0.4) + labs(title="1. Population Distribution (mu=50)")
-p2 <- ggplot(data.frame(x=sample_means), aes(x)) + geom_density(fill="blue", alpha=0.4) + labs(title="2. Sampling Distribution of xbar (n=30)", subtitle="Notice it's centered at μ and less spread out")
+p2 <- ggplot(data.frame(x=sample_means), aes(x)) + geom_density(fill="blue", alpha=0.4) + labs(title="2. Sampling Distribution of xbar (n=30)", subtitle="Notice it's centered at mu and less spread out")
 
 grid.arrange(p1, p2, ncol=2)
 ```
 
----
+
+## Sampling Distribution Example
+
+Imagine a tiny population that contains only four numbers. These are all the values that exist in our entire population.
+
+```{r define-population}
+# Our entire population consists of just four numbers
+population <- c(2, 4, 6, 10)
+
+# Let's calculate the TRUE population mean (mu). This is a parameter.
+true_population_mean <- mean(population)
+
+print(paste("The population is:", paste(population, collapse = ", ")))
+print(paste("The true population mean (mu) is:", true_population_mean))
+```
+
+The true mean of our population is **5.5**. In a real research problem, this is the value we want to estimate, but we don't know it.
+
+## Step 2: List All Possible Samples
+
+Now, let's list every single possible sample of size $n = 2$ that we can draw from this population *without replacement*.
+
+The number of combinations is "4 choose 2", which is 6. We can use R to list them all.
+
+```{r list-samples, echo=T}
+# Use the combn() function to get all unique combinations of size 2
+all_possible_samples <- combn(population, 2)
+print("All 6 possible samples of size n=2:")
+print(all_possible_samples)
+```
+
+## Step 3: Calculate the Sample Mean for Each Sample
+
+For each of the 6 possible samples, we will now calculate its sample mean ($\bar{x}$).
+
+```{r calculate-means}
+# Use the apply() function to calculate the mean of each column (each sample)
+sample_means <- apply(all_possible_samples, 2, mean)
+
+# Print the resulting sample means
+print("The mean of each of the 6 possible samples:")
+print(sample_means)
+```
+
+## Step 4: The Sampling Distribution of the Sample Mean
+
+The list of all possible sample means we just calculated (`r sample_means`) **is the sampling distribution**. It's the distribution of all possible values the sample mean can take for a sample of size $n=2$ from our population.
+
+Let's organize it into a frequency table and visualize it.
+
+```{r create-distribution}
+# Create a frequency table of the sample means
+sampling_distribution_table <- as.data.frame(table(sample_means))
+colnames(sampling_distribution_table) <- c("Sample_Mean", "Frequency")
+
+print("The Sampling Distribution (as a frequency table):")
+print(sampling_distribution_table)
+```
+
+## Step 5: Visualization the Sampling Distribution of the Sample Mean
+
+Now, let's plot this distribution with a histogram.
+
+```{r plot-distribution}
+# Create a data frame for ggplot
+plot_data <- data.frame(means = sample_means)
+
+# Plot the sampling distribution
+ggplot(plot_data, aes(x = means)) +
+  geom_histogram(binwidth = 1, color = "black", fill = "skyblue", alpha = 0.7) +
+  labs(
+    title = "The Exact Sampling Distribution of the Sample Mean (n=2)",
+    x = "Sample Mean (x bar)",
+    y = "Frequency"
+  ) +
+  # Add a vertical line for the true population mean
+  geom_vline(
+    aes(xintercept = true_population_mean), 
+    color = "red", 
+    linetype = "dashed", 
+    linewidth = 1.5
+  ) +
+  # Add a label for the line
+  annotate(
+    "text", 
+    x = true_population_mean + 0.8, 
+    y = 1.5, 
+    label = paste("True Pop. Mean (mu) =", true_population_mean), 
+    color = "red"
+  ) +
+  theme_minimal()
+```
 
 # 10. The Central Limit Theorem (CLT)
 
 ## The Most Important Theorem in Statistics
-
-<hr>
 
 The **Central Limit Theorem (CLT)** states:
 
@@ -442,9 +525,7 @@ Furthermore, the mean of this sampling distribution will be the population mean 
 
 $$\bar{X} \approx N\left(\mu, \frac{\sigma^2}{n}\right)$$
 
-## Why the CLT is a "Miracle"
-
-<hr>
+## Why Is The CLT Important?
 
 **The implications of the CLT are profound:**
 
@@ -452,44 +533,37 @@ $$\bar{X} \approx N\left(\mu, \frac{\sigma^2}{n}\right)$$
 
 2.  **It provides a precise formula for the variance of the sample mean ($\sigma^2/n$).** This shows that as our sample size $n$ increases, the sample mean $\bar{x}$ becomes a more precise estimator of the population mean $\mu$ (its sampling distribution gets narrower).
 
-The CLT is the foundation that allows us to build confidence intervals and conduct hypothesis tests for the mean.
-
----
+The CLT is the foundation that allows us to build confidence intervals and conduct hypothesis tests for the mean. And also for estimators that are functions of the mean. 
 
 # 11. Introduction to Estimation
 
 ## Point Estimators
-
-<hr>
 
 An **estimator** is a rule (a formula) for calculating an estimate of a population parameter based on sample data. The value it produces is called an **estimate**.
 
 A **Point Estimator** is a formula that produces a single value as the estimate.
 
 **Common Point Estimators:**
-*   The sample mean $\bar{x}$ is a point estimator for the population mean $\mu$.
-*   The sample proportion $\hat{p}$ is a point estimator for the population proportion $p$.
-*   The sample variance $s^2$ is a point estimator for the population variance $\sigma^2$.
+
+  - The sample mean $\bar{x}$ is a point estimator for the population mean $\mu$.
+  - The sample proportion $\hat{p}$ is a point estimator for the population proportion $p$.
+  - The sample variance $s^2$ is a point estimator for the population variance $\sigma^2$.
 
 ## Desirable Properties of Estimators
 
-<hr>
-
 How do we know if an estimator is "good"? We look for three properties (conceptually):
 
-1.  **Unbiasedness**
-    *   An estimator is unbiased if its expected value is equal to the true population parameter. $E[\theta]=\theta$.
-    *   *Analogy:* On average, the shots hit the center of the target. There's no systematic over- or under-estimation.
+**Unbiasedness**: An estimator is unbiased if its expected value is equal to the true population parameter. $E[\theta]=\theta$.
 
-2.  **Efficiency**
-    *   Among all unbiased estimators, the most efficient one is the one with the smallest variance.
-    *   *Analogy:* The shots are tightly clustered around the center. It's a precise estimator.
+  - *Analogy:* On average, the shots hit the center of the target. There's no systematic over- or under-estimation.
 
-3.  **Consistency**
-    *   An estimator is consistent if, as the sample size $n$ approaches infinity, the value of the estimator converges to the true parameter value.
-    *   *Analogy:* The more information you get, the closer you get to the truth.
+**Efficiency**: Among all unbiased estimators, the most efficient one is the one with the smallest variance.
 
----
+  - *Analogy:* The shots are tightly clustered around the center. It's a precise estimator.
+
+**Consistency**: An estimator is consistent if, as the sample size $n$ approaches infinity, the value of the estimator converges to the true parameter value.
+
+  - *Analogy:* The more information you get, the closer you get to the truth.
 
 # 12. Introduction to Hypothesis Testing
 

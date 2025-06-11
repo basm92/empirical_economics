@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.3.26)  11 JUN 2025 22:21
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.3.26)  11 JUN 2025 22:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1158,9 +1158,9 @@ File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 
 ]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <14.4> on input line 690.
+(Font)              <14.4> on input line 699.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <14.4> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 690.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 699.
 [31
 
 ] [32
@@ -1175,32 +1175,49 @@ LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <14.4> not available
 
 ] [37
 
-] [38
-
 ]
-<statprob_files/figure-beamer/sampling_dist_plot-1.pdf, id=306, 716.6775pt x 49
+<statprob_files/figure-beamer/sampling_dist_plot-1.pdf, id=302, 712.6625pt x 49
 3.845pt>
 File: statprob_files/figure-beamer/sampling_dist_plot-1.pdf Graphic file (type 
 pdf)
 <use statprob_files/figure-beamer/sampling_dist_plot-1.pdf>
 Package pdftex.def Info: statprob_files/figure-beamer/sampling_dist_plot-1.pdf 
- used on input line 773.
-(pdftex.def)             Requested size: 250.93842pt x 172.91615pt.
+ used on input line 807.
+(pdftex.def)             Requested size: 250.93842pt x 173.88823pt.
+[38
 
-Overfull \vbox (74.3047pt too high) detected at line 773
- []
+ <./statprob_files/figure-beamer/sampling_dist_plot-1.pdf>]
+\openout4 = `statprob.vrb'.
 
-[39
+(./statprob.vrb) [39
 
- <./statprob_files/figure-beamer/sampling_dist_plot-1.pdf>] [40
+]
+\openout4 = `statprob.vrb'.
 
-] [41
+(./statprob.vrb) [40
 
-] [42
+]
+\openout4 = `statprob.vrb'.
 
-] [43
+(./statprob.vrb) [41
 
-] [44
+]
+\openout4 = `statprob.vrb'.
+
+(./statprob.vrb) [42
+
+]
+<statprob_files/figure-beamer/plot-distribution-1.pdf, id=344, 712.6625pt x 495
+.8525pt>
+File: statprob_files/figure-beamer/plot-distribution-1.pdf Graphic file (type p
+df)
+<use statprob_files/figure-beamer/plot-distribution-1.pdf>
+Package pdftex.def Info: statprob_files/figure-beamer/plot-distribution-1.pdf  
+used on input line 905.
+(pdftex.def)             Requested size: 250.93842pt x 174.5951pt.
+[43
+
+ <./statprob_files/figure-beamer/plot-distribution-1.pdf>] [44
 
 ] [45
 
@@ -1220,6 +1237,8 @@ Overfull \vbox (74.3047pt too high) detected at line 773
 
 ] [53
 
+] [54
+
 ]
 \tf@nav=\write6
 \openout6 = `statprob.nav'.
@@ -1232,15 +1251,15 @@ Overfull \vbox (74.3047pt too high) detected at line 773
 
 (./statprob.aux) ) 
 Here is how much of TeX's memory you used:
- 28948 strings out of 478287
- 593565 string characters out of 5849289
- 836706 words of memory out of 5000000
- 46242 multiletter control sequences out of 15000+600000
- 552089 words of font info for 170 fonts, out of 8000000 for 9000
+ 28976 strings out of 478287
+ 594687 string characters out of 5849289
+ 837144 words of memory out of 5000000
+ 46260 multiletter control sequences out of 15000+600000
+ 551934 words of font info for 167 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,11n,122p,1005b,762s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/te
-xmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit
+{/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/te
+xmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit
 .enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts
 /enc/dvips/lm/lm-mathex.enc}</usr/share/texmf/fonts/type1/public/lm/lmex10.pfb>
 </usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type
@@ -1250,12 +1269,13 @@ ic/lm/lmss8.pfb></usr/share/texmf/fonts/type1/public/lm/lmssbx10.pfb></usr/shar
 e/texmf/fonts/type1/public/lm/lmsso10.pfb></usr/share/texmf/fonts/type1/public/
 lm/lmsso8.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/te
 xmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/type1/public/lm/lmt
-k10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texlive/
-texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on statprob.pdf (53 pages, 307297 bytes).
+k10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fo
+nts/type1/public/lm/lmtti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/symbols/msam10.pfb>
+Output written on statprob.pdf (54 pages, 333897 bytes).
 PDF statistics:
- 551 PDF objects out of 1000 (max. 8388607)
- 440 compressed objects within 5 object streams
- 154 named destinations out of 1000 (max. 500000)
- 47268 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 579 PDF objects out of 1000 (max. 8388607)
+ 462 compressed objects within 5 object streams
+ 162 named destinations out of 1000 (max. 500000)
+ 47273 words of extra memory for PDF output out of 51595 (max. 10000000)
 
