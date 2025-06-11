@@ -1,0 +1,354 @@
+---
+title: "Propensity Score Matching"
+author: "Bas Machielsen"
+date: "`r Sys.Date()`"
+output:
+  beamer_presentation:
+    includes:
+      in_header: "preamble.tex"
+classoption: "aspectratio=169"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Fundamental Problem of Causal Inference
+
+The core challenge in estimating causal effects is that we can never observe the same unit in multiple states simultaneously.
+
+\begin{itemize}
+    \item We want to know: "What would have happened to a person if they \alert{had not} received the treatment, given that they \alert{did} receive it?"
+    \item This "what if" scenario is the \alert{counterfactual}.
+    \item We can only observe one of the two potential outcomes for any individual.
+\end{itemize}
+
+## Potential Outcomes (Reminder)
+
+Let's formalize this. For each individual $i$:
+
+\begin{itemize}
+    \item $T_i$: The treatment status.
+    \begin{itemize}
+        \item $T_i = 1$ if treated
+        \item $T_i = 0$ if control
+    \end{itemize}
+    \item $Y_i(1)$: The potential outcome if the individual receives the treatment.
+    \item $Y_i(0)$: The potential outcome if the individual does not receive the treatment.
+\end{itemize}
+
+The causal effect of the treatment for individual $i$ is $\tau_i = Y_i(1) - Y_i(0)$.
+
+
+## Individual to Average Effects
+
+We can only ever observe one potential outcome for each individual:
+
+$$ Y_i^{\text{obs}} = T_i Y_i(1) + (1-T_i)Y_i(0) $$
+
+The other outcome is the unobserved counterfactual.
+
+
+Since we cannot estimate individual effects, we focus on \alert{average treatment effects}.
+
+The average effect of the treatment on the entire population:
+$$ \text{ATE} = \E[Y(1) - Y(0)] = \E[Y(1)] - \E[Y(0)] $$
+The average effect of the treatment on those who actually received it:
+$$ \text{ATT} = \E[Y(1) - Y(0) \mid T=1] = \E[Y(1) \mid T=1] - \E[Y(0) \mid T=1] $$
+
+## Naive Estimator and Selection Bias
+
+The challenge is estimating the red term: the counterfactual outcome for the treated group.
+
+A naive approach is to compare the average outcomes of the treated and control groups:
+$$ \Delta_{\text{naive}} = \E[Y^{\text{obs}} \mid T=1] - \E[Y^{\text{obs}} \mid T=0] $$
+$$ \Delta_{\text{naive}} = \E[Y(1) \mid T=1] - \E[Y(0) \mid T=0] $$
+
+Let's decompose this:
+\begin{align*}
+\Delta_{\text{naive}} &= \E[Y(1) \mid T=1] - \E[Y(0) \mid T=1] \\
+                & \quad + \E[Y(0) \mid T=1] - \E[Y(0) \mid T=0] \\
+                \\
+                &= \underbrace{\text{ATT}}_{\text{Causal Effect}} + \underbrace{\text{Selection Bias}}_{\text{Confounding}}
+\end{align*}
+
+This is the difference in outcomes that would exist \textit{even if no one was treated}. It arises because the groups were different to begin with.
+
+## Randomized Control Trials: The Gold Standard
+
+How do RCTs solve the selection bias problem?
+\begin{itemize}
+    \item By randomly assigning treatment, we ensure that the treatment status $T$ is statistically independent of the potential outcomes $(Y(1), Y(0))$.
+    
+    \begin{center}
+    \alert{$T \indep (Y(1), Y(0))$}
+    \end{center}
+    
+    \item This means the treated and control groups are, on average, identical in all characteristics (both observed and unobserved) before treatment.
+\end{itemize}
+
+
+## Implications of Randomization
+
+\begin{block}{Implication of Randomization}
+If $T$ is independent of potential outcomes, then:
+\begin{itemize}
+    \item $\E[Y(0) \mid T=1] = \E[Y(0) \mid T=0] = \E[Y(0)]$
+    \item The selection bias term goes to zero!
+    \item $\Delta_{\text{naive}} = \text{ATT} = \text{ATE}$
+\end{itemize}
+The simple difference in means is an unbiased estimator of the causal effect.
+\end{block}
+
+## Causal Inference with Observational Data
+
+What if we can't run an RCT? We have to use observational data.
+\begin{itemize}
+    \item In observational data, treatment is \alert{not} randomly assigned.
+    \item Individuals may "select" into treatment based on characteristics that also affect the outcome.
+    \item These characteristics are called \alert{confounders}.
+\end{itemize}
+
+In observational studies, our goal is to use statistical methods to \textit{emulate} an RCT by controlling for the confounding variables ($X$).
+
+## Key Assumption: Conditional Independence
+
+
+We can't assume full independence like in an RCT. Instead, we rely on a weaker, but crucial, assumption.
+
+**Conditional Independence Assumption**:
+Also known as "Unconfoundedness" or "Ignorability".
+
+Given a set of pre-treatment covariates $X$, treatment assignment $T$ is independent of the potential outcomes $(Y(1), Y(0))$.
+$$ (Y(1), Y(0)) \indep T \mid X $$
+
+## Conditional Independence 
+
+\textbf{In plain English:}
+\begin{itemize}
+    \item Within strata defined by the covariates $X$, treatment assignment is "as good as random".
+    \item If we compare a treated person and a control person with the \alert{same values of X}, any difference in their outcomes should be due to the treatment, not pre-existing differences.
+    \item This implies we have measured and controlled for \textit{all common causes} of treatment and outcome. \alert{This is a strong, untestable assumption!}
+\end{itemize}
+
+
+## Curse of Dimensionality
+
+The CIA suggests a strategy:
+\begin{enumerate}
+    \item Stratify the data based on the covariates $X$.
+    \item Within each stratum, compare the average outcomes of the treated and controls.
+    \item Average these differences across all strata to get the ATE.
+\end{enumerate}
+
+If $X$ is high-dimensional (i.e., contains many variables, or continuous variables), it becomes impossible to find exact matches.
+\begin{itemize}
+    \item For a given treated unit, we might not find any control units with the \textit{exact same} values for all covariates.
+    \item This is the \alert{curse of dimensionality}.
+\end{itemize}
+
+We need a way to summarize all the confounding information in $X$ into a single number.
+
+## Propensity Score
+
+The propensity score, $e(X)$, is the conditional probability of receiving the treatment, given the observed covariates $X$.
+$$ e(X_i) = P(T_i = 1 \mid X_i) $$
+
+\begin{itemize}
+    \item The propensity score is a "balancing score".
+    \item It summarizes all the information in the covariates $X$ related to treatment selection.
+    \item Two individuals with the same propensity score, one treated and one control, are like a "pseudo-randomized" pair because their probability of treatment was the same.
+\end{itemize}
+
+\textbf{Key Idea:} Instead of conditioning on all of $X$, we can just condition on the one-dimensional propensity score, $e(X)$.
+
+## Propensity Score Theorem
+
+The theoretical foundation for why this works:
+
+\begin{block}{Propensity Score Theorem}
+If the Conditional Independence Assumption holds for $X$:
+$$ (Y(1), Y(0)) \indep T \mid X $$
+Then it also holds for the propensity score $e(X)$:
+$$ (Y(1), Y(0)) \indep T \mid e(X) $$
+\end{block}
+
+\begin{itemize}
+    \item \textbf{This is powerful!} It reduces a multi-dimensional conditioning problem to a single-dimensional one.
+    \item We can now match or adjust on a single variable, the propensity score, to remove confounding bias from the observed covariates $X$.
+    \item After conditioning on $e(X)$, the distribution of the covariates $X$ should be the same between the treated and control groups.
+\end{itemize}
+
+$$ X \indep T \mid e(X) $$
+
+## Propensity Score Workflow
+
+A typical analysis follows these steps:
+
+\begin{enumerate}
+    \item \textbf{Estimate the Propensity Score:}
+    \begin{itemize}
+        \item Model $P(T=1 \mid X)$ using a binary regression model (e.g., logistic regression or probit).
+        \item The covariates $X$ should be all variables that are thought to be confounders.
+    \end{itemize}
+    \item \textbf{Use the Score to Balance Covariates:}
+    \begin{itemize}
+        \item Apply a method like Matching, Stratification, or Weighting.
+        \item Check for \alert{common support} (overlap).
+        \item Check for \alert{covariate balance} in the matched/weighted sample.
+    \end{itemize}
+    \item \textbf{Estimate the Treatment Effect:}
+    \begin{itemize}
+        \item Calculate the difference in outcomes in the new, balanced sample.
+        \item Calculate standard errors.
+    \end{itemize}
+\end{enumerate}
+
+## Step 1: Estimating the Propensity Score
+
+
+We use a statistical model to estimate $e(X) = P(T=1 \mid X)$.
+\begin{itemize}
+    \item Most commonly, a \alert{logistic regression} is used:
+    $$ \log\left(\frac{P(T=1 \mid X)}{1-P(T=1 \mid X)}\right) = \beta_0 + \beta_1 X_1 + \dots + \beta_k X_k $$
+    \item The choice of covariates $X$ is crucial. They should be pre-treatment variables that theoretically influence both treatment selection and the outcome.
+    \item The goal is \textbf{not} to build the best predictive model for T! The goal is to create a score that \alert{balances the covariates} between the treated and control groups.
+    \item Including interaction terms and polynomials can help achieve better balance.
+\end{itemize}
+The output is a predicted probability, $\hat{e}(X_i)$, for each individual $i$.
+
+## Step 2: Propensity Score Matching (PSM)
+
+The goal of PSM is to create a new control group that looks like the treated group in terms of observed covariates.
+\begin{itemize}
+    \item For each treated unit, find one or more control units with a very similar propensity score.
+    \item Discard all control units that are not selected as matches.
+\end{itemize}
+
+\textbf{Common Matching Algorithms:}
+\begin{itemize}
+    \item \alert{Nearest Neighbor Matching:} Match each treated unit to the control unit with the closest propensity score. Can be done with or without replacement.
+    \item \alert{Caliper Matching:} A nearest neighbor match is only made if the distance is within a pre-defined threshold (the "caliper"). This avoids bad matches.
+    \item \alert{Radius Matching:} Match each treated unit to \textit{all} control units within a certain radius.
+\end{itemize}
+
+PSM typically estimates the \alert{Average Treatment Effect on the Treated (ATT)}.
+
+## Crucial Check 1: Common Support (Overlap)
+
+Propensity score methods only work if there is a region of \alert{common support}.
+\begin{itemize}
+    \item This means the range of propensity scores should overlap substantially between the treated and control groups.
+    \item If there are treated units with propensity scores higher than any control unit (or vice versa), we cannot find a suitable match for them.
+    \item Units that fall outside the common support region must be discarded from the analysis.
+\end{itemize}
+
+
+## Crucial Check 2: Covariate Balance
+
+The entire point of PSM is to create balance. \alert{You must check if you succeeded!}
+\begin{itemize}
+    \item After matching, the means (and distributions) of the covariates $X$ should be nearly identical between the treated group and the matched control group.
+    \item A common diagnostic is the \alert{Standardized Mean Difference (SMD)} for each covariate.
+    $$ \text{SMD} = \frac{\bar{X}_{\text{treated}} - \bar{X}_{\text{control}}}{\sqrt{(\sigma^2_{\text{treated}} + \sigma^2_{\text{control}})/2}} $$
+    \item Rule of thumb: After matching, SMD should be less than 0.1 for all covariates.
+    \item If balance is not achieved, you must go back and re-specify your propensity score model (e.g., add interactions, polynomials).
+\end{itemize}
+
+## Step 3: Estimating ATT After Matching
+
+Once you have a balanced, matched sample, estimating the ATT is straightforward.
+
+\begin{itemize}
+    \item Let $S_M$ be the set of matched units (all treated units within common support, and their matched controls).
+    \item The ATT is simply the difference in average outcomes within this matched sample.
+    
+    $$ \widehat{\text{ATT}} = \frac{1}{N_T} \sum_{i \in T \cap S_M} Y_i^{\text{obs}} - \frac{1}{N_T} \sum_{j \in C \cap S_M} w_j Y_j^{\text{obs}} $$
+    
+    where $N_T$ is the number of treated units and $w_j$ are weights reflecting how many times a control unit $j$ was used as a match. (For 1-to-1 matching, $w_j=1$).
+\end{itemize}
+
+Standard errors must be calculated carefully, as matching introduces dependence in the data. Bootstrapping is a common approach.
+
+## Option B: Inverse Probability Weighting
+
+
+An alternative to matching is weighting. Instead of discarding units, we re-weight them to create a balanced pseudo-population.
+
+Intuition:
+\begin{itemize}
+    \item A treated person with a \textit{low} propensity score ($e(X) \approx 0$) was "surprising" to be treated. They get a large weight.
+    \item A control person with a \textit{high} propensity score ($e(X) \approx 1$) was "surprising" to be a control. They also get a large weight.
+    \item The weights make the sample look like one in which treatment was assigned randomly.
+\end{itemize}
+
+This method typically estimates the \alert{Average Treatment Effect (ATE)}.
+
+## Estimate ATE using IPW
+
+The ATE is estimated using the \alert{Horvitz-Thompson estimator}.
+
+The weight for an individual $i$ is the inverse of the probability of receiving the treatment they actually received.
+$$ w_i = \frac{T_i}{\hat{e}(X_i)} + \frac{1-T_i}{1-\hat{e}(X_i)} $$
+The ATE is the difference in the weighted means:
+$$ \widehat{\text{ATE}} = \frac{1}{N} \sum_{i=1}^N \frac{T_i Y_i^{\text{obs}}}{\hat{e}(X_i)} - \frac{1}{N} \sum_{i=1}^N \frac{(1-T_i)Y_i^{\text{obs}}}{1-\hat{e}(X_i)} $$
+
+IPW can be very sensitive to extreme propensity scores (values close to 0 or 1). This leads to extremely large weights and high variance. Often, weights are "trimmed" or "stabilized" to mitigate this.
+
+## Comparing PSM vs. IPW
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
+    \textbf{Propensity Score Matching (PSM)}
+    \begin{itemize}
+        \item \textbf{Estimand:} Usually ATT
+        \item \textbf{Pros:}
+            \begin{itemize}
+                \item Intuitive
+                \item Easy to check balance
+                \item More robust to misspecification if good matches are found
+            \end{itemize}
+        \item \textbf{Cons:}
+            \begin{itemize}
+                \item Discards data (inefficient)
+                \item Choice of algorithm matters
+            \end{itemize}
+    \end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+    \textbf{Inverse Probability Weighting (IPW)}
+    \begin{itemize}
+        \item \textbf{Estimand:} Usually ATE
+        \item \textbf{Pros:}
+            \begin{itemize}
+                \item Uses all data (efficient)
+                \item Statistically elegant
+            \end{itemize}
+        \item \textbf{Cons:}
+            \begin{itemize}
+                \item Can be highly sensitive to extreme weights (p-scores near 0 or 1)
+                \item Can have high variance
+            \end{itemize}
+    \end{itemize}
+\end{column}
+\end{columns}
+
+\vspace{1cm}
+Other methods exist, like Stratification and Doubly Robust Estimation.
+
+## Summary
+
+
+\begin{itemize}
+    \item Propensity score methods are powerful tools for estimating causal effects from observational data by mimicking an RCT.
+    \item They rely on the Potential Outcomes framework and aim to eliminate selection bias.
+    \item Key steps: estimate p-score, balance covariates (via matching/weighting), check balance, estimate effect.
+\end{itemize}
+
+Propensity score methods can only control for \textbf{observed} confounders. The Conditional Independence Assumption ($(Y(1), Y(0)) \indep T \mid X$) is \textbf{untestable}.
+
+If there are \textit{unobserved} confounders that affect both treatment and outcome, your estimate will still be biased.
+
+\textbf{Propensity scores are a tool to fix a problem you can see, not one you can't.}
+

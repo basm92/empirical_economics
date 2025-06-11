@@ -1,0 +1,430 @@
+---
+title: "Instrumental Variables"
+author: "Bas Machielsen"
+date: "`r Sys.Date()`"
+output: 
+  beamer_presentation:
+    includes:
+      in_header: "preamble.tex"
+classoption: "aspectratio=169"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The Goal of Causal Inference
+
+Our fundamental goal is often to estimate the causal effect of a variable $X$ on an outcome $Y$.
+
+Consider the simple linear model:
+$$Y_i = \beta_0 + \beta_1 X_i + \epsilon_i$$
+
+We want our estimate of $\beta_1$, which we call $\hat{\beta}_1$, to be an unbiased and consistent estimate of the true causal effect.
+
+For Ordinary Least Squares (OLS) to be unbiased, we need the regressor $X$ to be uncorrelated with the error term $\epsilon$.
+$$\E[X_i \epsilon_i] = 0 \quad \text{or} \quad \Cov(X_i, \epsilon_i) = 0$$
+
+This is the assumption of \textbf{exogeneity}.
+
+## The Problem: Endogeneity
+
+Endogeneity occurs when the exogeneity assumption is violated:
+
+\[ \Cov(X_i, \epsilon_i) \neq 0 \]
+
+When $X$ is endogenous, OLS is biased and inconsistent. Our $\hat{\beta}_1$ does not converge to the true $\beta_1$, even with infinite data.
+
+\textbf{Why does this happen?}
+The error term $\epsilon$ contains all other factors that determine $Y$ but are not included in the model. If any of these omitted factors are also correlated with $X$, we have a problem.
+
+## Sources of Endogeneity
+
+1. **Omitted Variable Bias (OVB)**
+
+  - A variable $W$ affects $Y$ and is also correlated with $X$, but $W$ is not included in the model.
+  - _Example_: Effect of education ($X$) on wages ($Y$). Omitted "ability" ($W$) affects wages and is correlated with education.
+
+2. **Simultaneity / Reverse Causality**
+
+- $X$ causes $Y$, but $Y$ also causes $X$.
+- \textit{Example:} Effect of police presence ($X$) on crime rates ($Y$). More police may reduce crime, but higher crime rates lead to more police being hired.
+
+3. **Measurement Error**
+
+- The variable $X$ is measured with error.
+- \textit{Example:} Effect of household income ($X$) on consumption ($Y$). Income reported in surveys ($X$) is often an imperfect measure of true income.
+
+## Illustrating Omitted Variable Bias
+
+Let the true model be:
+$$Y_i = \beta_0 + \beta_1 X_i + \beta_2 W_i + u_i$$
+where $W_i$ is an unobserved variable (e.g., ability).
+
+But we estimate the simple model:
+$$Y_i = \alpha_0 + \alpha_1 X_i + \epsilon_i \quad (\text{where } \epsilon_i = \beta_2 W_i + u_i)$$
+
+The OLS estimate for $\alpha_1$ will be:
+$$\text{plim} \, \hat{\alpha}_1 = \beta_1 + \beta_2 \cdot \frac{\Cov(X_i, W_i)}{\Var(X_i)}$$
+
+The bias is $\beta_2 \cdot \frac{\Cov(X_i, W_i)}{\Var(X_i)}$. It is non-zero if $W$ affects $Y$ ($\beta_2 \neq 0$) and is correlated with $X$ ($\Cov(X,W) \neq 0$).
+
+## Intuition for Instrumental Variables
+
+If $X$ is endogenous, we can't use its correlation with $Y$ to identify $\beta_1$.
+
+- Part of the correlation between $X$ and $Y$ is the causal effect we want ($\beta_1$).
+- Another part is the "bad" correlation due to endogeneity (e.g., OVB).
+
+\textbf{The IV idea:} Find a third variable $Z$, the \textbf{instrument}, that can isolate the "good" part of the variation in $X$.
+
+An instrument is a variable that is correlated with the endogenous regressor $X$, but is \textit{not} correlated with the error term $\epsilon$.
+
+- It creates "as-if random" variation in $X$.
+- It only affects $Y$ \textit{through} its effect on $X$.
+
+## Two Core IV Assumptions
+
+For a variable $Z$ to be a valid instrument for $X$ in the model $Y_i = \beta_0 + \beta_1 X_i + \epsilon_i$, it must satisfy two conditions:
+
+1. Relevance Condition (First Stage)
+- The instrument $Z$ must be correlated with the endogenous variable $X$: $\Cov(Z_i, X_i) \neq 0$
+- This is testable from the data. We can regress $X$ on $Z$.
+
+2. Exclusion Restriction (Exogeneity)
+
+- The instrument $Z$ must be uncorrelated with the error term $\epsilon$: $\Cov(Z_i, \epsilon_i) = 0$
+- This means $Z$ affects $Y$ \textbf{only} through its effect on $X$.
+- This is a theoretical assumption and is \textbf{not testable}. It requires deep institutional knowledge and a strong argument.
+
+
+## Visualize IV with a DAG
+
+\textbf{The Endogeneity Problem (OVB):} $U$ is an unobserved confounder.
+
+The path $X \leftarrow U \rightarrow Y$ creates a spurious correlation between $X$ and $Y$. OLS is biased.
+
+\textbf{IV Solution:}
+
+- **Relevance**: The arrow $Z \rightarrow X$.
+- **Exclusion Restriction**: The \textit{absence} of a direct arrow from $Z$ to $Y$ or from $Z$ to $U$.
+
+
+## Potential Outcomes (Reminder)
+
+Let's consider a binary treatment $X_i \in \{0, 1\}$.
+\begin{itemize}
+    \item $Y_i(1)$: The potential outcome for individual $i$ if they receive the treatment ($X_i=1$).
+    \item $Y_i(0)$: The potential outcome for individual $i$ if they do not receive the treatment ($X_i=0$).
+\end{itemize}
+
+The individual causal effect is $\tau_i = Y_i(1) - Y_i(0)$.
+
+For each individual $i$, we can only observe one of the two potential outcomes:
+
+$Y_i^{\text{obs}} = X_i Y_i(1) + (1-X_i) Y_i(0)$
+
+We never observe $Y_i(1)$ and $Y_i(0)$ for the same person.
+
+## IV in a Potential Outcomes Framework
+
+Now let's introduce a binary instrument $Z_i \in \{0, 1\}$.
+
+  - $Z_i=1$: Individual $i$ is "encouraged" to get treatment.
+  - $Z_i=0$: Individual $i$ is "not encouraged".
+
+We need to define potential outcomes for the \textit{treatment} itself, based on the instrument:
+
+  - $X_i(1)$: The treatment status of individual $i$ if they are encouraged ($Z_i=1$).
+  - $X_i(0)$: The treatment status of individual $i$ if they are not encouraged ($Z_i=0$).
+
+And we also have potential outcomes for $Y$: $Y_i(x)$.
+
+## Compliers, Always-Takers, Never-Takers
+
+Based on how an individual's treatment status $X_i$ responds to the instrument $Z_i$, we can classify the population into four groups.
+
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Type} & \textbf{If $Z_i=0$} & \textbf{If $Z_i=1$} \\
+& $X_i(0)$ & $X_i(1)$ \\
+\midrule
+\textbf{Complier} & 0 & 1 \\
+\textit{(Does what they are encouraged to do)} & & \\
+\addlinespace
+\textbf{Always-Taker} & 1 & 1 \\
+\textit{(Takes treatment regardless of encouragement)} & & \\
+\addlinespace
+\textbf{Never-Taker} & 0 & 0 \\
+\textit{(Never takes treatment regardless)} & & \\
+\addlinespace
+\textbf{Defier} & 1 & 0 \\
+\textit{(Does the opposite of encouragement)} & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+## IV Assumptions in Potential Outcomes
+
+Like potential outcomes, we never know for sure which group an individual belongs to.
+The two core assumptions have precise meanings in this framework, plus we need two more.
+
+- \textbf{Independence of the Instrument}: $Z_i \indep \{ Y_i(1), Y_i(0), X_i(1), X_i(0) \}$
+  - The instrument is "as-if" randomly assigned. It's independent of all potential outcomes and potential treatment decisions.
+- \textbf{Exclusion Restriction}: $Y_i(x, z) = Y_i(x) \quad \text{for all } x, z$
+  - The instrument $Z$ does not have a direct effect on the outcome $Y$. It only works through $X$. 
+
+- \textbf{Relevance (First Stage)}: $\E[X_i | Z_i=1] - \E[X_i | Z_i=0] \neq 0$
+  - The instrument must affect the treatment status for some individuals. This means there must be some Compliers.
+- \textbf{Monotonicity}: $X_i(1) \geq X_i(0) \quad \text{for all } i$
+  - The instrument encourages (or discourages) everyone weakly in the same direction. This assumption rules out the existence of \textbf{Defiers}.
+
+## IV Estimator
+
+With these four assumptions, IV does \textbf{not} estimate the Average Treatment Effect ($ATE = \E[Y_i(1) - Y_i(0)]$) for the whole population.
+
+Instead, IV estimates the \textbf{Local Average Treatment Effect (LATE)} (Imbens \& Angrist, 1994).
+
+$$\beta_{IV} = \E[Y_i(1) - Y_i(0) \mid X_i(1) > X_i(0)]$$
+
+This is the average treatment effect \textbf{only for the subpopulation of Compliers}.
+
+This is a crucial insight: The causal effect we get from IV is specific to the group of people who are induced into treatment by the instrument. It may not generalize to Always-Takers or Never-Takers.
+
+## The Wald Estimator
+
+The simplest IV estimator is the Wald estimator, used when both the instrument $Z$ and the treatment $X$ are binary.
+
+$$\hat{\beta}_{\text{Wald}} = \frac{\E[Y | Z=1] - \E[Y | Z=0]}{\E[X | Z=1] - \E[X | Z=0]}$$
+
+\textbf{Interpretation:}
+
+- \textbf{Numerator:} The "Reduced Form" effect. How much does the outcome change when the instrument is switched on?
+  - Called the \text{Intent-to-Treat (ITT) effect}
+- \textbf{Denominator:} The "First Stage" effect. How much does the treatment take-up change when the instrument is switched on?
+  - Called the \text{Share of Compliers} 
+
+The Wald estimator is simply the sample-analogue of this formula.
+
+## Derivation of Wald Estimator
+
+Why does the Wald formula gives us the LATE?
+
+The numerator is $\E[Y | Z=1] - \E[Y | Z=0]$
+
+This difference in outcomes is only driven by the Compliers switching from $X=0$ to $X=1$. For everyone else (Always/Never-Takers), their treatment status doesn't change. So the numerator can be rewritten as $\text{Numerator} = \Pr(\text{Complier}) \cdot \E[Y(1) - Y(0) \mid \text{Complier}]$
+
+The denominator is $\E[X | Z=1] - \E[X | Z=0] = \Pr(\text{Complier})$
+
+Putting it together:
+$$\hat{\beta}_{\text{Wald}} = \frac{\Pr(\text{Complier}) \cdot \text{LATE}}{\Pr(\text{Complier})} = \text{LATE}$$
+
+## General IV Estimator
+
+Let's return to our linear model:
+$Y_i = \beta_0 + \beta_1 X_i + \epsilon_i$
+where $\Cov(X_i, \epsilon_i) \neq 0$. We have an instrument $Z$ such that $\Cov(Z_i, X_i) \neq 0$ and $\Cov(Z_i, \epsilon_i) = 0$.
+
+The IV estimator for $\beta_1$ is given by:
+
+$\hat{\beta}_1^{\text{IV}} = \frac{\Cov(Z, Y)}{\Cov(Z, X)}$
+
+Notice the similarity to the Wald estimator. The numerator is the covariance of the instrument and outcome (reduced form), and the denominator is the covariance of the instrument and the endogenous variable (first stage).
+
+## Analogy to OLS Estimator
+
+This formula is very instructive. Let's compare it to the OLS estimator in a simple regression.
+
+\textbf{OLS Estimator:}
+\[ \hat{\beta}_1^{\text{OLS}} = \frac{\Cov(X, Y)}{\Cov(X, X)} = \frac{\Cov(X, Y)}{\Var(X)} \]
+OLS uses the full covariance of $X$ and $Y$. If $X$ is endogenous, this covariance is "contaminated."
+
+\textbf{IV Estimator:}
+\[ \hat{\beta}_1^{\text{IV}} = \frac{\Cov(Z, Y)}{\Cov(Z, X)} \]
+IV replaces the "bad" variation in $X$ with the "good" variation in $Z$.
+\begin{itemize}
+    \item It uses only the part of the variation in $X$ that is induced by the exogenous instrument $Z$.
+    \item It then scales the relationship between $Z$ and $Y$ by the relationship between $Z$ and $X$.
+\end{itemize}
+
+\begin{frame}
+\frametitle{General Case: Two-Stage Least Squares (2SLS)}
+What if we have multiple instruments or other exogenous control variables ($W$)? We use a procedure called Two-Stage Least Squares (2SLS).
+
+Let the structural model be:
+\[ Y_i = \beta_0 + \beta_1 X_i + \gamma' W_i + \epsilon_i \]
+($X_i$ is endogenous, $W_i$ are exogenous controls).
+
+Let the instruments be $Z_1, Z_2, ..., Z_k$.
+
+The 2SLS procedure works in two steps...
+\end{frame}
+
+\begin{frame}
+\frametitle{2SLS: The First Stage}
+\begin{block}{Step 1: The First Stage Regression}
+Regress the endogenous variable $X$ on all the instruments $Z$ and all other exogenous controls $W$.
+\[ X_i = \pi_0 + \pi_1 Z_{1i} + ... + \pi_k Z_{ki} + \delta' W_i + \nu_i \]
+\end{block}
+\pause
+\begin{itemize}
+    \item From this regression, we obtain the \textbf{predicted values} for $X$, which we call $\hat{X}_i$.
+    \[ \hat{X}_i = \hat{\pi}_0 + \hat{\pi}_1 Z_{1i} + ... + \hat{\pi}_k Z_{ki} + \hat{\delta}' W_i \]
+    \item This $\hat{X}_i$ is the part of the variation in $X$ that is explained by our exogenous variables.
+    \item By construction, $\hat{X}_i$ is uncorrelated with the structural error $\epsilon_i$ (as long as our instruments are valid!).
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{2SLS: The Second Stage}
+\begin{block}{Step 2: The Second Stage Regression}
+Regress the outcome variable $Y$ on the \textbf{predicted} endogenous variable $\hat{X}$ and the other exogenous controls $W$.
+\[ Y_i = \beta_0 + \beta_1 \hat{X}_i + \gamma' W_i + \text{error} \]
+\end{block}
+\pause
+\begin{itemize}
+    \item The coefficient $\hat{\beta}_1$ from this second stage regression is our 2SLS estimate.
+    \item Since we used $\hat{X}_i$ instead of $X_i$, we have purged the endogeneity, and our estimate for $\beta_1$ is now consistent.
+\end{itemize}
+\pause
+\begin{alertblock}{Important Note on Standard Errors}
+Do \textbf{not} perform these two steps manually in your statistical software. The standard errors from the second stage will be incorrect. Use a dedicated `ivregress`, `ivreg`, `tsls` command, which automatically adjusts the standard errors for the first-stage estimation uncertainty.
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Finding Good Instruments is Hard!}
+The credibility of any IV analysis rests entirely on the quality of the instrument.
+\begin{itemize}
+    \item A good instrument must be both \textbf{relevant} and \textbf{valid} (exogenous).
+    \item The exclusion restriction is a very strong assumption. You must provide a convincing story for why your instrument $Z$ could not possibly affect $Y$ except through its effect on $X$.
+    \item Often, instruments come from:
+    \begin{itemize}
+        \item Natural or quasi-random experiments (e.g., policy changes, lotteries).
+        \item Institutional details or rules.
+        \item Geographic or historical quirks.
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{The Problem of Weak Instruments}
+What happens if the \textbf{Relevance} condition is only barely met?
+i.e., $\Cov(Z,X)$ is very close to zero.
+
+\begin{alertblock}{Weak Instrument Problem}
+If an instrument is weak, even a tiny violation of the exclusion restriction (a tiny $\Cov(Z, \epsilon)$) can lead to a very large bias in the IV estimate.
+\[ \text{Bias}(\hat{\beta}_{IV}) \approx \frac{\Cov(Z, \epsilon)}{\Cov(Z, X)} \]
+A small denominator leads to a large bias! Furthermore, the variance of the IV estimator will be very large.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Testing for Weak Instruments}
+We can and should test for instrument relevance.
+\begin{itemize}
+    \item This is a test on the \textbf{first stage} regression:
+    \[ X_i = \pi_0 + \pi_1 Z_{1i} + ... + \pi_k Z_{ki} + (\text{controls}) + \nu_i \]
+    \item We perform an F-test on the joint significance of all instruments:
+    \[ H_0: \pi_1 = \pi_2 = ... = \pi_k = 0 \]
+\end{itemize}
+\pause
+\begin{block}{Rule of Thumb (Stock, Wright, \& Yogo, 2002)}
+A first-stage \textbf{F-statistic greater than 10} is often used as a benchmark to indicate that instruments are not weak.
+\begin{itemize}
+    \item F < 10 is a serious red flag.
+    \item You should always report the first-stage F-statistic in any IV analysis.
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Testing the Exclusion Restriction}
+The exclusion restriction, $\Cov(Z, \epsilon)=0$, is the bedrock of IV and is \textbf{fundamentally untestable}.
+\begin{itemize}
+    \item Its validity is based on economic theory, institutional knowledge, and careful reasoning.
+\end{itemize}
+\pause
+However, if you have \textbf{more instruments than endogenous variables} (the "overidentified" case), you can perform a partial test.
+\begin{itemize}
+    \item \textbf{Test of Overidentifying Restrictions} (Sargan-Hansen test).
+    \item \textbf{Intuition:} If all instruments are valid, they should all point to the same estimate of $\beta_1$. The test checks if the different instruments produce statistically different estimates.
+    \item A rejection of the null hypothesis suggests that at least one of your instruments is not valid (i.e., it is correlated with the error term).
+    \item This test requires you to believe that at least one instrument is valid to test the validity of the "extra" ones.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Classic Example: Angrist \& Krueger (1991)}
+\textbf{Question:} What is the causal effect of an additional year of schooling on wages?
+\begin{itemize}
+    \item \textbf{Outcome (Y):} Log weekly wages.
+    \item \textbf{Endogenous Variable (X):} Years of schooling.
+    \item \textbf{Endogeneity Problem:} Ability is an omitted variable. More able individuals tend to get more schooling and earn higher wages, biasing the OLS estimate upwards.
+\end{itemize}
+\pause
+\textbf{The Instrument (Z):} Quarter of Birth.
+\end{frame}
+
+\begin{frame}
+\frametitle{Angrist \& Krueger (1991): The Instrument}
+\textbf{Why is Quarter of Birth a valid instrument?}
+\begin{itemize}
+    \item \textbf{Institutional Detail:} In the US, compulsory schooling laws required students to attend school until they turned 16 or 17.
+    \item Students born early in the year (e.g., Jan, Feb) start school at an older age. They turn 16 earlier in their school career and can legally drop out with slightly less education.
+    \item Students born late in the year (e.g., Oct, Nov) are younger when they start school. They are forced by the law to stay in school longer to reach their 16th birthday, resulting in slightly more education on average.
+\end{itemize}
+\pause
+\begin{block}{Checking the IV Assumptions}
+\begin{itemize}
+    \item \textbf{Relevance:} Is quarter of birth correlated with years of schooling? Yes, the data showed a small but statistically significant relationship.
+    \item \textbf{Exclusion Restriction:} Is it plausible that quarter of birth has no direct effect on wages, other than through its effect on schooling? The authors argued yes. It's hard to think of a reason why birth month would directly influence adult earnings, other than this institutional quirk.
+\end{itemize}
+\end{block}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Angrist \& Krueger (1991): Results}
+\begin{itemize}
+    \item \textbf{OLS Result:} Found that an extra year of school was associated with about a 7.5% increase in wages.
+        \begin{itemize}
+            \item Likely an overestimate due to ability bias.
+        \end{itemize}
+    \item \textbf{IV (2SLS) Result:} Using quarter of birth as an instrument, they found a very similar return to schooling, also around 7.5%.
+\end{itemize}
+\pause
+\textbf{Interpretation (LATE):}
+\begin{itemize}
+    \item This IV estimate is the \textit{Local} Average Treatment Effect.
+    \item It represents the return to schooling for the \textbf{compliers}: those individuals who were induced to stay in school for an extra bit of time because of compulsory schooling laws.
+    \item These are likely people on the margin of dropping out of high school. The result may not apply to the returns to getting a college degree.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Summary and Key Takeaways}
+\begin{enumerate}
+    \item \textbf{Problem:} Endogeneity ($\Cov(X, \epsilon) \neq 0$) makes OLS biased and inconsistent for estimating causal effects.
+    \pause
+    \item \textbf{Solution:} A valid Instrumental Variable ($Z$) is:
+    \begin{itemize}
+        \item \textbf{Relevant:} Correlated with $X$.
+        \item \textbf{Exogenous:} Uncorrelated with the error term $\epsilon$ (the Exclusion Restriction).
+    \end{itemize}
+    \pause
+    \item \textbf{Interpretation:} IV estimates the Local Average Treatment Effect (LATE) - the causal effect for the subpopulation of "compliers" whose behavior is changed by the instrument.
+    \pause
+    \item \textbf{Estimation:} Use the Wald estimator for simple cases, and Two-Stage Least Squares (2SLS) for the general case.
+    \pause
+    \item \textbf{Practice:} Finding a valid instrument is the hardest part. Always check for weak instruments (First-stage F-statistic) and be prepared to defend your exclusion restriction.
+\end{enumerate}
+\end{frame}
+
+

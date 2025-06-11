@@ -1,23 +1,19 @@
 ---
-title: "Difference-in-differences"
+title: "Difference-in-Differences"
 author: "Bas Machielsen"
 date: "`r Sys.Date()`"
-output: beamer_presentation
+output: 
+  beamer_presentation:
+    includes:
+      in_header: "preamble.tex"
+classoption: "aspectratio=169"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
-## **The Difference-in-Differences Estimator**
-
-
-### **Foundations of Causal Inference & Basic DiD Setup**
-
----
-
-### **Recap: Correlation vs. Causation**
+## Recap: Correlation vs. Causation
 
 The fundamental challenge in empirical work.
 
@@ -32,7 +28,7 @@ Our goal is to isolate the causal effect, not just the correlation.
 
 ---
 
-### **The Potential Outcomes Framework**
+## The Potential Outcomes Framework
 
 Also known as the **Rubin Causal Model**.
 
@@ -47,7 +43,7 @@ Let's think about the effect of a treatment (e.g., a job training program) on an
 ---
 
 
-### **The Individual Causal Effect**
+## The Individual Causal Effect
 
 For any single individual *i*, the true causal effect of the treatment is the difference between their two potential outcomes:
 
@@ -58,7 +54,7 @@ $$\tau_i = Y_i(1) - Y_i(0)$$
 
 ---
 
-### **The Average Treatment Effect (ATE)**
+## The Average Treatment Effect (ATE)
 
 Since we usually can't measure the effect for every single individual, we focus on averages.
 
@@ -70,7 +66,7 @@ This tells us, "On average, what is the effect of this treatment for a person ra
 
 ---
 
-### **The Fundamental Problem of Causal Inference**
+## The Fundamental Problem of Causal Inference
 
 This is the core challenge that all causal methods try to solve.
 
@@ -83,7 +79,7 @@ Causal inference is a **missing data problem**. The $Y_i(0)$ for the treated and
 
 ---
 
-### **Illustrating the Fundamental Problem**
+## Illustrating the Fundamental Problem
 
 | Unit (i) | Attends Program? | Observed Earnings | $Y_i(1)$ | $Y_i(0)$ |
 | :---: | :---: | :---: | :---: | :---: |
@@ -96,8 +92,7 @@ We can't calculate $Y_i(1) - Y_i(0)$ for anyone!
 
 ---
 
-
-### **Why Simple Comparisons Fail**
+## Why Simple Comparisons Fail
 
 A naive approach might be to just compare the average earnings of those who attended the program to those who didn't.
 
@@ -109,7 +104,7 @@ Because the people who *choose* to get treatment might be different from those w
 
 ---
 
-### **Selection Bias: The Hidden Difference**
+## Selection Bias: The Hidden Difference
 
 The simple difference can be decomposed:
 
@@ -124,7 +119,7 @@ The simple difference can be decomposed:
 
 ---
 
-### **Selection Bias: Decomposition**
+## Selection Bias: Decomposition
 
 Hence
 
@@ -139,7 +134,7 @@ $\text{Selection Bias} = E[Y(0)|T=1] - E[Y(0)|T=0]$
 
 ---
 
-### **Introduction to Differences-in-Differences (DiD)**
+## Introduction to Differences-in-Differences (DiD)
 
 **The Core Idea:** Use data from a **pre-treatment period** to account for selection bias.
 
@@ -149,7 +144,7 @@ $\text{Selection Bias} = E[Y(0)|T=1] - E[Y(0)|T=0]$
 
 ---
 
-### **The 2x2 DiD Setup**
+## The 2x2 DiD Setup
 
 The classic setup involves two groups and two time periods.
 
@@ -163,7 +158,7 @@ The classic setup involves two groups and two time periods.
 
 ---
 
-### **Calculating the Simple DiD Estimator**
+## Calculating the Simple DiD Estimator
 
 We calculate two differences, then take the difference between them.
 
@@ -178,7 +173,7 @@ We calculate two differences, then take the difference between them.
 
 ---
 
-### **DiD Under Potential Outcomes**
+## DiD Under Potential Outcomes
 
 The observed outcome, $Y_{it}$, is determined by the unit's group status and the time period.
 
@@ -197,7 +192,7 @@ The observed outcome, $Y_{it}$, is determined by the unit's group status and the
 
 ---
 
-### **The Estimand: The ATT**
+## The Estimand: The ATT
 
 
 Formally, the ATT is the difference between the treated group's outcome at $t=1$ and what their outcome \textit{would have been} at $t=1$ if they had not been treated.
@@ -211,7 +206,7 @@ The second term, $E[Y_{i1}(0) | D_i=1]$, is the \textbf{counterfactual}. It is t
 
 ---
 
-### **Parallel Trends**
+## Parallel Trends
 
 
 The DiD estimator is valid under the \textbf{Parallel Trends Assumption}. This assumption states that, in the absence of treatment, the average outcome for the treated group would have changed over time by the same amount as the average outcome for the control group.
@@ -227,7 +222,7 @@ The left side is the counterfactual change for the treated group. The right side
 
 ---
 
-### **Derivation of the DiD Estimator**
+## Derivation of the DiD Estimator
 
 First, we rearrange the parallel trends assumption \eqref{eq:parallel_trends} to solve for our unobserved counterfactual:
 
@@ -240,7 +235,7 @@ This equation shows how we construct the counterfactual: we take the treated gro
 
 ---
 
-### **Derivation of the DiD Estimator**
+## Derivation of the DiD Estimator
 
 Substitute this expression for the counterfactual \eqref{eq:counterfactual} back into the definition of ATT:
 
@@ -252,7 +247,7 @@ Substitute this expression for the counterfactual \eqref{eq:counterfactual} back
 
 ---
 
-### **Replacing Potential Outcomes with Observables**
+## Replacing Potential Outcomes with Observables
 
 Finally, we replace the potential outcomes with their observable counterparts:
 
@@ -265,7 +260,7 @@ Finally, we replace the potential outcomes with their observable counterparts:
 
 ---
 
-### **Identification of the Estimand**
+## Identification of the Estimand
 
 Substituting these into the equation gives the DiD estimator:
 
@@ -281,13 +276,13 @@ This is the famous "difference-in-differences" formula. It identifies the ATT un
 
 ---
 
-### **Graphical Illustration of DiD**
+## Graphical Illustration of DiD
 
 - Tbd: Graphical Example
 
 ---
 
-### **Deconstructing the DiD Graph**
+## Deconstructing the DiD Graph
 
 -   The **solid blue line** is the observed trend for the control group.
 -   The **solid red line** is the observed outcome for the treatment group.
@@ -297,7 +292,7 @@ This is the famous "difference-in-differences" formula. It identifies the ATT un
 ---
 
 
-### **DiD using a Regression Framework**
+## DiD using a Regression Framework
 
 We can estimate the exact same 2x2 DiD using a simple OLS regression. This is more powerful and flexible.
 
@@ -310,9 +305,9 @@ $Y_{it} = \beta_0 + \beta_1 Treat_i + \beta_2 Post_t + \beta_3(Treat_i × Post_t
 
 ---
 
-### **Interpretation of Coefficients (1/2)**
+## Interpretation of Coefficients (1/2)
 
-Let's break down what each `\beta` represents:
+Let's break down what each $\beta$ represents:
 
 $Y_{it} = \beta_0 + \beta_1 Treat_i + \beta_2 Post_t + \beta_3(Treat_i \times Post_t) + \epsilon_{it}$
 
@@ -325,9 +320,9 @@ $Y_{it} = \beta_0 + \beta_1 Treat_i + \beta_2 Post_t + \beta_3(Treat_i \times Po
 
 ---
 
-### **Interpretation of Coefficients (2/2)**
+## Interpretation of Coefficients (2/2)
 
-$Y_{it} = \beta_0 + \beta_1Treat_i + \beta_2Post_t + \beta_3(Treat_i × Post_t) + \epsilon_{it}$
+$Y_{it} = \beta_0 + \beta_1Treat_i + \beta_2Post_t + \beta_3(Treat_i \times Post_t) + \epsilon_{it}$
 
 -   **$\beta_2$:** The average change in the outcome for the **Control Group** from the pre- to the post-period. **This is the secular trend.**
     -  $E[Y | Treat=0, Post=1] = \beta_0 + \beta_2$
@@ -339,7 +334,7 @@ $Y_{it} = \beta_0 + \beta_1Treat_i + \beta_2Post_t + \beta_3(Treat_i × Post_t) 
 
 ---
 
-### **Advantages of the Regression Framework**
+## Advantages of the Regression Framework
 
 Why bother with regression instead of just calculating the four means?
 
@@ -351,12 +346,12 @@ Why bother with regression instead of just calculating the four means?
 
 ---
 
-### **Adding Covariates to the DiD Model**
+## Adding Covariates to the DiD Model
 
 We can add a vector of control variables, `X`, to the regression.
 
 $$
-Y_{it} = \beta_0 + \beta_1Treat_i + \beta_2Post_t + \beta_3(Treat_i × Post_t) + \gamma'X_{it} + \epsilon_{it}
+Y_{it} = \beta_0 + \beta_1Treat_i + \beta_2Post_t + \beta_3(Treat_i \times Post_t) + \gamma'X_{it} + \epsilon_{it}
 $$
 
 -   **Purpose:** To control for observable characteristics that might differ between the groups and affect trends in the outcome.
@@ -365,7 +360,7 @@ $$
 
 ---
 
-### **Testing the Parallel Trends Assumption**
+## Testing the Parallel Trends Assumption
 
 We can't prove the assumption, but we can build evidence for it. This requires data from **multiple pre-treatment periods**.
 
@@ -375,7 +370,7 @@ We can't prove the assumption, but we can build evidence for it. This requires d
 
 ---
 
-### **Statistical "Tests" for Parallel Trends**
+## Statistical "Tests" for Parallel Trends
 
 If you have multiple pre-treatment periods, you can run a "placebo" test.
 
@@ -388,7 +383,7 @@ If you have multiple pre-treatment periods, you can run a "placebo" test.
 
 ---
 
-### **Extension: Multiple Periods & Staggered Adoption**
+## Extension: Multiple Periods & Staggered Adoption
 
 The real world is often messier than 2x2.
 
@@ -399,7 +394,7 @@ The real world is often messier than 2x2.
 
 ---
 
-### **Visualizing Staggered DiD: Event Study Plots**
+## Visualizing Staggered DiD: Event Study Plots
 
 These plots are standard for visualizing results from models with multiple periods.
 
@@ -411,7 +406,7 @@ These plots are standard for visualizing results from models with multiple perio
 
 ---
 
-### **Potential Pitfalls (1/3): Ashenfelter's Dip**
+## Potential Pitfalls (1/3): Ashenfelter's Dip
 
 A famous issue where the parallel trends assumption is violated in a specific way.
 
@@ -421,7 +416,7 @@ A famous issue where the parallel trends assumption is violated in a specific wa
 
 ---
 
-### **Potential Pitfalls (2/3): Policy Anticipation & Spillovers**
+## Potential Pitfalls (2/3): Policy Anticipation & Spillovers
 
 -   **Anticipation Effects:** If people know a policy is coming, they may change their behavior *before* it's officially implemented. This contaminates the "pre" period and violates parallel trends.
     -   *Example:* A firm hires fewer people in anticipation of a minimum wage hike.
@@ -431,7 +426,7 @@ A famous issue where the parallel trends assumption is violated in a specific wa
 
 ---
 
-### **Potential Pitfalls (3/3): Other Limitations**
+## Potential Pitfalls (3/3): Other Limitations
 
 -   **Functional Form:** The basic DiD model assumes the treatment effect is a constant, additive shift.
 -   **Data Requirements:** Requires panel data (tracking the same units over time) or repeated cross-sectional data.
@@ -439,7 +434,7 @@ A famous issue where the parallel trends assumption is violated in a specific wa
 
 ---
 
-### **Summary: DiD is Powerful, but Use with Care**
+## Summary: DiD is Powerful, but Use with Care
 
 -   **What it does:** DiD provides a powerful and intuitive way to estimate causal effects by controlling for time-invariant unobserved differences (selection bias).
 -   **The Golden Rule:** The **Parallel Trends** assumption is everything. You must convince yourself and your audience that it is plausible.
@@ -451,7 +446,7 @@ A famous issue where the parallel trends assumption is violated in a specific wa
 
 ---
 
-### **Staggered Adoption**
+## Staggered Adoption
 
 Many modern DiD settings involve \textbf{staggered treatment adoption}, where different units get treated at different times.
     
@@ -468,7 +463,7 @@ Recent research (Goodman-Bacon, 2021; de Chaisemartin \& D'Haultfœuille, 2020) 
 
 ---
 
-### **Why Bad Comparisons Are A Problem?**
+## Why Are Bad Comparisons A Problem?
 
 Imagine Cohort 2010 gets treated in 2010 and Cohort 2012 gets treated in 2012.
 \begin{itemize}
@@ -484,8 +479,7 @@ This is only valid if treatment effects are constant across cohorts and time. If
 
 ---
 
-
-### **Sun and Abraham (2021) Solution**
+## Sun and Abraham (2021) Solution
 
 The core idea is to avoid aggregation and bad comparisons.
 
@@ -505,7 +499,7 @@ The core idea is to avoid aggregation and bad comparisons.
 
 ---
 
-### **Identification of Cohort-Specific ATT**
+## Identification of Cohort-Specific ATT
 
 The estimand of interest is the Average Treatment Effect for cohort $g$ at calendar time $\ell$ (where $\ell \ge g$). We denote this $\text{ATT}(g, \ell)$.
 
@@ -520,7 +514,7 @@ For each pair $(g, \ell)$, $\text{ATT}(g, \ell)$ is identified by a simple 2x2 D
 
 ---
 
-### **Bias-variance trade-off**
+## Bias-variance Trade-off
 
 The S\&A framework is flexible. You can choose your control group to manage the bias-variance trade-off:
 
@@ -533,7 +527,7 @@ The S\&A framework is flexible. You can choose your control group to manage the 
 
 ---
 
-### **Questions?**
+Questions?
 
 
 
