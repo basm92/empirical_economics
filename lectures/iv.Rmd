@@ -223,6 +223,80 @@ The denominator is $\E[X | Z=1] - \E[X | Z=0] = \Pr(\text{Complier})$
 Putting it together:
 $$\hat{\beta}_{\text{Wald}} = \frac{\Pr(\text{Complier}) \cdot \text{LATE}}{\Pr(\text{Complier})} = \text{LATE}$$
 
+## Proof of LATE Theorem
+
+\begin{frame}[fragile] % 'fragile' option is needed for verbatim environments like align*
+\frametitle{Deriving the Wald Estimator: The Math}
+
+Let's prove that the Wald estimator identifies the LATE under the four key IV assumptions (Independence, Exclusion, Relevance, Monotonicity).
+\[ \text{Wald} = \frac{\E[Y | Z=1] - \E[Y | Z=0]}{\E[X | Z=1] - \E[X | Z=0]} \]
+
+\begin{block}{The Denominator: Share of Compliers}
+We will show that $\E[X | Z=1] - \E[X | Z=0] = \Prp(\text{Complier})$.
+\begin{align*}
+    & \E[X | Z=z] = \E[X_i(z) | Z=z] && \text{(Def. of observed X)} \\
+    & \qquad = \E[X_i(z)] && \text{(by Independence assumption)}
+\end{align*}
+So the denominator is $\E[X_i(1)] - \E[X_i(0)]$. Let's expand this using the Law of Total Expectation over the population types (C=Complier, A=Always-Taker, N=Never-Taker). We assume Monotonicity, so there are no Defiers.
+\begin{align*}
+    \E[X_i(1)] &= \E[X_i(1)|C]\Prp(C) + \E[X_i(1)|A]\Prp(A) + \E[X_i(1)|N]\Prp(N) \\
+               &= (1)\Prp(C) + (1)\Prp(A) + (0)\Prp(N) = \Prp(C) + \Prp(A) \\
+    \E[X_i(0)] &= \E[X_i(0)|C]\Prp(C) + \E[X_i(0)|A]\Prp(A) + \E[X_i(0)|N]\Prp(N) \\
+               &= (0)\Prp(C) + (1)\Prp(A) + (0)\Prp(N) = \Prp(A)
+\end{align*}
+Therefore, the denominator is:
+\[ (\Prp(C) + \Prp(A)) - \Prp(A) = \Prp(C) \]
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Deriving the Wald Estimator: The Math (Cont.)}
+
+\begin{block}{The Numerator: Intent-to-Treat for Compliers}
+The numerator is $\E[Y | Z=1] - \E[Y | Z=0]$. Again, we use Independence to state $\E[Y|Z=z] = \E[Y_i(X_i(z))]$.
+\begin{align*}
+    \E[Y_i(X_i(1))] &= \E[Y_i(X_i(1))|C]\Prp(C) + \E[Y_i(X_i(1))|A]\Prp(A) + \E[Y_i(X_i(1))|N]\Prp(N) \\
+                    &= \E[Y_i(1)|C]\Prp(C) + \E[Y_i(1)|A]\Prp(A) + \E[Y_i(0)|N]\Prp(N) \\
+    \E[Y_i(X_i(0))] &= \E[Y_i(X_i(0))|C]\Prp(C) + \E[Y_i(X_i(0))|A]\Prp(A) + \E[Y_i(X_i(0))|N]\Prp(N) \\
+                    &= \E[Y_i(0)|C]\Prp(C) + \E[Y_i(1)|A]\Prp(A) + \E[Y_i(0)|N]\Prp(N)
+\end{align*}
+Now, we take the difference. Notice the terms for Always-Takers and Never-Takers are identical and will cancel out:
+\begin{align*}
+\text{Numerator} &= \left( \E[Y_i(1)|C]\Prp(C) + \dots \right) - \left( \E[Y_i(0)|C]\Prp(C) + \dots \right) \\
+&= \E[Y_i(1)|C]\Prp(C) - \E[Y_i(0)|C]\Prp(C) \\
+&= \Prp(C) \cdot \left( \E[Y_i(1)|C] - \E[Y_i(0)|C] \right) \\
+&= \Prp(\text{Complier}) \cdot \E[Y_i(1) - Y_i(0) | \text{Complier}] \\
+&= \Prp(\text{Complier}) \cdot \text{LATE}
+\end{align*}
+(The Exclusion Restriction is implicitly used because $Y$ only depends on $X$, not $Z$).
+\end{block}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Putting It All Together}
+
+We have shown:
+\begin{itemize}
+    \item \textbf{Numerator} = $\Prp(\text{Complier}) \times \text{LATE}$
+    \item \textbf{Denominator} = $\Prp(\text{Complier})$
+\end{itemize}
+
+\pause
+
+Therefore, the Wald estimator is:
+
+\begin{alertblock}{Result}
+\[ \hat{\beta}_{\text{Wald}} = \frac{\E[Y | Z=1] - \E[Y | Z=0]}{\E[X | Z=1] - \E[X | Z=0]} = \frac{\Prp(\text{Complier}) \times \text{LATE}}{\Prp(\text{Complier})} = \text{LATE} \]
+\end{alertblock}
+
+\pause
+\bigskip
+
+This is a powerful result. It shows that the simple ratio of the reduced form effect to the first-stage effect precisely isolates the average causal effect for the specific subpopulation whose treatment status is actually manipulated by the instrument.
+
+
+
 ## General IV Estimator
 
 Let's return to our linear model:
