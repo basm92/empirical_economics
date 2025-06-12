@@ -301,6 +301,36 @@ ggplot(data.frame(x = c(-5, 15)), aes(x)) +
   theme_minimal(base_size = 18)
 ```
 
+## Linear Combinations of Normal Variables
+
+An important property of the normal distribution is that linear combinations of independent normal variables are also normally distributed.
+
+### Rule 1: Scaling and Shifting
+If $X \sim N(\mu, \sigma^2)$, then the new variable $Y = aX + b$ is also normally distributed:
+$$Y \sim N(a\mu + b, a^2\sigma^2)$$
+Note that the new standard deviation is $|a|\sigma$.
+
+## Linear Combinations of Normal Variables (Cont.)
+
+### Rule 2: Sum/Difference of Independent Variables
+
+If $X \sim N(\mu_X, \sigma_X^2)$ and $Y \sim N(\mu_Y, \sigma_Y^2)$ are **independent**, then their sum and difference are also normally distributed:
+$$ X + Y \sim N(\mu_X + \mu_Y, \sigma_X^2 + \sigma_Y^2) $$
+$$ X - Y \sim N(\mu_X - \mu_Y, \sigma_X^2 + \sigma_Y^2) $$
+**Key point**: Variances always add, even when subtracting the random variables.
+
+## Example
+Let the time to complete Task A be $T_A \sim N(20, 3^2)$ minutes and Task B be $T_B \sim N(15, 4^2)$ minutes. What is the distribution of the total time $T_{total} = T_A + T_B$?
+
+-   New Mean: $\mu_{total} = \mu_A + \mu_B = 20 + 15 = 35$
+-   New Variance: $\sigma^2_{total} = \sigma_A^2 + \sigma_B^2 = 3^2 + 4^2 = 9 + 16 = 25$
+-   New Standard Deviation: $\sigma_{total} = \sqrt{25} = 5$
+
+So, $T_{total} \sim N(35, 5^2)$. We can now calculate probabilities for the total time, e.g., the probability the total time is less than 45 minutes: 
+```{r linear_combo}
+pnorm(45, mean = 35, sd = 5)
+```
+
 ## The Standard Normal Distribution (Z)
 
 The **Standard Normal Distribution** is a special case of the normal distribution with a mean of 0 and a variance of 1. $Z \sim N(0, 1)$.
@@ -386,6 +416,66 @@ A strong correlation between two variables does not mean that one *causes* the o
   - Does eating ice cream cause drowning? No.
   - The omitted variable is **hot weather ($Z$)**, which causes people to both buy more ice cream and swim more (leading to more drownings).
 
+
+# 8. Rules for Sums of Random Variables In General
+
+## 1. Expected Value
+
+Let $X$ and $Y$ be two random variables with means $\mu_X$ and $\mu_Y$, and variances $\sigma_X^2$ and $\sigma_Y^2$. Let $a$ and $b$ be constants. These rules are fundamental and apply to **all** random variables, discrete or continuous.
+
+The expectation of a linear combination is the linear combination of the expectations. This property is called **Linearity of Expectation**.
+
+- General Rule:$E[aX + bY] = aE[X] + bE[Y]$
+
+**Key Insight:** This rule holds **regardless** of whether $X$ and $Y$ are independent. Expectations are always additive/subtractive in this straightforward way.
+
+**Simple Cases:**
+
+  - Sum: $E[X + Y] = E[X] + E[Y]$
+  - Difference: $E[X - Y] = E[X] - E[Y]$
+
+## 2. Variance
+
+The rule for variance includes a covariance term.
+
+**General Rule:** $\text{Var}(aX + bY) = a^2\text{Var}(X) + b^2\text{Var}(Y) + 2ab\,\text{Cov}(X, Y)$
+
+**Special Case: Independent Variables**
+
+If $X$ and $Y$ are **independent**, then their covariance is zero ($\text{Cov}(X, Y) = 0$). The formula simplifies significantly:
+
+$$ \text{Var}(aX + bY) = a^2\text{Var}(X) + b^2\text{Var}(Y) $$
+
+- **Simple Cases (for Independent Variables):**
+
+  - Sum: $\text{Var}(X + Y) = \text{Var}(X) + \text{Var}(Y)$
+  - Difference: $\text{Var}(X - Y) = \text{Var}(X) + \text{Var}(Y)$
+
+## 3. Covariance
+
+Covariance measures the joint variability of two random variables.
+
+- **Rule for Sums:** Covariance is bilinear, meaning it acts like the distributive property in algebra.
+    $$ \text{Cov}(aX + bY, Z) = a\,\text{Cov}(X, Z) + b\,\text{Cov}(Y, Z) $$
+
+- **Covariance with Itself is Variance:**
+    $$ \text{Cov}(X, X) = \text{Var}(X) $$
+
+This bilinearity is precisely how the general variance rule $\text{Var}(X+Y) = \text{Cov}(X+Y, X+Y)$ is derived. (Why?)
+
+## Summary Table
+
+\tiny
+| Property         | Linear Combination              | General Case                                                       | Independent Case ($Cov(X,Y)=0$)            |
+| :--------------- | :------------------------------ | :----------------------------------------------------------------- | :----------------------------------------- |
+| **Expectation**  | $E[aX \pm bY]$                  | $a\mu_X \pm b\mu_Y$                                                | (Same as General)                          |
+|                  | $E[X + Y]$                      | $\mu_X + \mu_Y$                                                    | (Same as General)                          |
+|                  | $E[X - Y]$                      | $\mu_X - \mu_Y$                                                    | (Same as General)                          |
+| **Variance**     | $\text{Var}(aX + bY)$            | $a^2\sigma_X^2 + b^2\sigma_Y^2 + 2ab\,\text{Cov}(X,Y)$            | $a^2\sigma_X^2 + b^2\sigma_Y^2$            |
+|                  | $\text{Var}(X + Y)$              | $\sigma_X^2 + \sigma_Y^2 + 2\,\text{Cov}(X,Y)$                      | $\sigma_X^2 + \sigma_Y^2$                  |
+|                  | $\text{Var}(X - Y)$              | $\sigma_X^2 + \sigma_Y^2 - 2\,\text{Cov}(X,Y)$                      | $\sigma_X^2 + \sigma_Y^2$                  |
+
+\normalsize
 
 # 8. Introduction to Inference and Sampling
 
@@ -726,7 +816,7 @@ p_left + annotate("text", x = -2.5, y = 0.1, label = paste("Reject H0, alpha =",
 
 **Example:** Testing if a new manufacturing process *reduces* the number of product defects.
 
-## Summary: Which Test to Use?
+## Which Test to Use?
 
 **Golden Rule:** Unless you have a very strong, justifiable, pre-specified reason for expecting an effect in only one direction, **you should use a two-sided test.**
 
@@ -739,5 +829,55 @@ p_left + annotate("text", x = -2.5, y = 0.1, label = paste("Reject H0, alpha =",
 | **When to Use**     | The default, conservative choice.  | Only when there is a strong prior reason or you only care about one direction. |
 | **Power**           | Less powerful.                     | More powerful (if the effect is in the hypothesized direction). |
 
-## Questions?
+## Confidence Intervals
+
+A confidence interval (CI) is a range of values, derived from sample data, that is likely to contain the value of an unknown **population parameter** (e.g., the true population mean $\mu$ or proportion $p$).
+
+Ingredients: 
+
+- **Point Estimate:** A single value calculated from the sample that estimates the population parameter (e.g., sample mean $\bar{x}$). It's our "best guess," but it's almost certainly wrong.
+- **Interval Estimate:** The confidence interval provides a range around the point estimate, acknowledging the uncertainty inherent in sampling.
+- **Confidence Level:** The probability that the *method* used to construct the interval will capture the true population parameter. Common levels are 90%, 95%, and 99%.
+
+## Interpretation
+
+The confidence level refers to the **long-run success rate of the method**, not the probability of a single interval being correct.
+
+- **Correct Interpretation:** "We are **95% confident** that the method used to construct this interval from our sample captures the true population mean."
+  - *Analogy:* Imagine throwing rings at a post (the true parameter). The 95% confidence level means that if you were to take many samples and throw many "ring" intervals, 95% of them would land on the post. You don't know if the *one* ring you just threw is a success or a miss.
+
+- **Incorrect Interpretation:** It is **wrong** to say, "There is a 95% probability that the true population mean lies within *this specific* interval $[A, B]$." Once an interval is calculated, the true mean is either in it or it isn't; there is no probability involved for that specific interval.
+
+
+## Construction of a Confidence Interval
+
+Most confidence intervals share a common structure.
+
+**General Formula:**
+$$CI= \text{Point Estimate} \pm \text{Margin of Error} $$
+The Margin of Error (ME) quantifies the uncertainty of our estimate and is built from two pieces:
+
+1.  **Critical Value:**
+  - A number from a probability distribution (typically a **Z** or **t** distribution).
+  - It determines how many standard errors to go out from the point estimate to achieve the desired confidence level.
+  - For a 95% CI, the Z-critical value is $Z_{\alpha/2} = 1.96$. For a t-distribution, it also depends on the sample size (degrees of freedom).
+
+## Margin of Error
+
+2.  **Standard Error of the Estimate (SE):**
+
+  - An estimate of the standard deviation of the sampling distribution of the point estimate.
+  - It measures the typical amount of variability we expect in our point estimate from sample to sample.
+  - Example for a mean: $SE = s / \sqrt{n}$ (where $s$ is the sample standard deviation and $n$ is the sample size). (Why? See Variance Rules)
+
+## Common Examples
+
+- **CI for a Population Mean ($\mu$)** (when population $\sigma$ is unknown, which is most common):
+    $$\bar{x} \pm t_{\alpha/2, df} \left( \frac{s}{\sqrt{n}} \right)$$
+    Where $\bar{x}$ is the sample mean, $s$ is the sample standard deviation, and $t$ is the critical value from the t-distribution with $n-1$ degrees of freedom.
+
+- **CI for a Population Proportion ($p$):**
+    $$\hat{p} \pm Z_{\alpha/2} \sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$$
+    Where $\hat{p}$ is the sample proportion and $Z$ is the critical value from the standard normal distribution.
+
 
