@@ -10,7 +10,7 @@ classoption: "aspectratio=169"
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,message=FALSE, warning=FALSE)
-library(ggplot2); library(modelsummary)
+library(ggplot2); library(modelsummary); library(tidyverse); library(ggpp)
 # Generate some plausible data for wage and education
 set.seed(123)
 n <- 100
@@ -63,6 +63,8 @@ The type of data we have determines the econometric methods we should use.
 *   **Time Series Data:** Observations on a single entity (e.g., a country, a company) collected over *multiple time periods*.
     *   *Example:* Data on U.S. GDP, inflation, and unemployment from 1950 to 2023.
 
+## The Nature of Economic Data (Cont.)
+
 *   **Pooled Cross-Sections:** A combination of two or more cross-sectional datasets from different time periods. The individuals are different in each period.
     *   *Example:* A random survey of households in 1990, and another *different* random survey of households in 2020.
 
@@ -101,10 +103,9 @@ $$
 y_i = \beta_0 + \beta_1 x_i + u_i
 $$
 
-Where:
-*   $y_i$ is the wage of individual $i$.
-*   $x_i$ is the education of individual $i$.
-*   $u_i$ is the error term for individual $i$. It represents the deviation of individual $i$'s actual wage from the population average, $E(y|x_i)$.
+  - $y_i$ is the wage of individual $i$.
+  - $x_i$ is the education of individual $i$.
+  - $u_i$ is the error term for individual $i$. It represents the deviation of individual $i$'s actual wage from the population average, $E(y|x_i)$.
 
 By definition of the conditional expectation, $E(u|x) = 0$. The average of the unobserved factors does not depend on the level of education.
 
@@ -123,10 +124,12 @@ $$
 \hat{y} = \hat{\beta}_0 + \hat{\beta}_1 x
 $$
 
-*   $\hat{y}$ (y-hat) is the **predicted** or **fitted** value of y.
-*   $\hat{\beta}_0$ and $\hat{\beta}_1$ are the **estimators** of $\beta_0$ and $\beta_1$. They are statistics calculated from our sample data.
+- $\hat{y}$ (y-hat) is the **predicted** or **fitted** value of y.
+- $\hat{\beta}_0$ and $\hat{\beta}_1$ are the **estimators** of $\beta_0$ and $\beta_1$. They are statistics calculated from our sample data.
 
-```{r, fig.align='center', out.width='60%'}
+## Example
+
+```{r, echo=FALSE, fig.align='center', out.width='60%'}
 ggplot(dat, aes(x=educ, y=wage)) +
   geom_point(alpha=0.6) +
   labs(title="Sample Data and a Potential Regression Line", x="Education (years)", y="Wage ($/hour)") +
@@ -134,8 +137,6 @@ ggplot(dat, aes(x=educ, y=wage)) +
   geom_smooth(method="lm", se=FALSE, aes(color="OLS Line")) +
   scale_color_manual(name="", values="blue")
 ```
-
----
 
 ## 2.1 Derivation of OLS Estimators
 
@@ -152,11 +153,11 @@ $$
 \min_{\hat{\beta}_0, \hat{\beta}_1} SSR = \sum_{i=1}^{n} e_i^2 = \sum_{i=1}^{n} (y_i - \hat{\beta}_0 - \hat{\beta}_1 x_i)^2
 $$
 
-> We square the residuals so that positive and negative errors don't cancel out, and because it penalizes larger errors more heavily.
+We square the residuals so that positive and negative errors don't cancel out, and because it penalizes larger errors more heavily.
 
 ---
 
-## Derivation of OLS (cont.)
+## Derivation of OLS (Cont.)
 
 To minimize the SSR, we use calculus: take the partial derivatives with respect to $\hat{\beta}_0$ and $\hat{\beta}_1$ and set them to zero. These are the **First Order Conditions (FOCs)**.
 
@@ -174,8 +175,6 @@ $$
 $$
 where $\bar{x}$ and $\bar{y}$ are the sample means of $x$ and $y$.
 
----
-
 ## 2.2 Algebraic Properties of OLS
 
 The OLS estimators have some important algebraic properties that come directly from the FOCs:
@@ -184,6 +183,9 @@ The OLS estimators have some important algebraic properties that come directly f
     $$\sum_{i=1}^{n} e_i = 0$$
     This implies that the sample average of the residuals, $\bar{e}$, is also zero.
 
+
+## 2.2 Algebraic Properties of OLS (Cont.)
+
 2.  **The sample covariance between the regressor ($x$) and the OLS residuals ($e$) is zero:**
     $$\sum_{i=1}^{n} x_i e_i = 0$$
     This means the part of $y$ that we can't explain with $x$ (the residual) is uncorrelated with $x$ in our sample.
@@ -191,7 +193,6 @@ The OLS estimators have some important algebraic properties that come directly f
 3.  **The point $(\bar{x}, \bar{y})$ is always on the OLS regression line.**
     From the formula $\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$, we can write $\bar{y} = \hat{\beta}_0 + \hat{\beta}_1 \bar{x}$.
 
----
 
 ## 2.3 Interpreting OLS Coefficients
 
@@ -207,24 +208,138 @@ So our estimated SRF is: $\widehat{wage} = `r round(coef(slr_model)[1], 2)` + `r
 
 **Interpretation:**
 
-- Slope ($\hat{\beta}_1 \approx 1.25$): "For each additional year of education, we estimate the hourly wage to increase by **$1.25**, on average." This is the key policy parameter.
-- Intercept ($\hat{\beta}_0 \approx 0.84$): "For an individual with zero years of education, we predict an hourly wage of **$0.84**."
-
-- **Caution:** This is an extrapolation, as we likely have no one in our sample with 0 years of education. The intercept is often just a mathematical necessity to ensure the line passes through the sample means.
+- Slope ($\hat{\beta}_1 \approx `r round(coef(slr_model)[2], 2)`$): "For each additional year of education, we estimate the hourly wage to increase by **$1.25**, on average." This is the key policy parameter.
+- Intercept ($\hat{\beta}_0 \approx `r round(coef(slr_model)[1], 2)`$): "For an individual with zero years of education, we predict an hourly wage of **$0.84**."
 
 ## 2.4 Units and Functional Form
 
 The values of the coefficients depend on the units of measurement of $y$ and $x$. We've used a **level-level** model ($y$ and $x$ are in their natural units).
 
 Suppose we measured wage in cents instead of dollars.
-*   The new dependent variable is $wage_{cents} = 100 \times wage$.
-*   The new regression would be:
+
+  - The new dependent variable is $wage_{cents} = 100 \times wage$.
+  - The new regression would be:
     $\widehat{wage_{cents}} = (100 \times \hat{\beta}_0) + (100 \times \hat{\beta}_1) \times educ$
-*   Both the intercept and slope would be 100 times larger. The *interpretation* is the same, just the units change ("an extra year of education increases wage by 125 cents").
+  - Both the intercept and slope would be 100 times larger. The *interpretation* is the same, just the units change ("an extra year of education increases wage by 125 cents").
+
+## 2.4 Units and Functional Form (Cont.)
 
 What if we measured education in months instead of years?
 
-- The interpretation of $\hat{\beta}_1$ would become "the estimated change in wage for an additional *month* of education." The coefficient value would be $\frac{1}{12}$ of its original value.
+- The interpretation of $\hat{\beta}_1$ would become "the estimated change in wage for an additional *month* of education." The coefficient value would be $\frac{1}{12}$ of its original value:
+
+From our definition, $educ_{years} = \frac{1}{12} educ_{months}$. Let's substitute this into the original estimated equation:
+
+\begin{align*}
+\widehat{wage} &= \hat{\beta}_0 + \hat{\beta}_1 educ_{years} \\
+&= \hat{\beta}_0 + \hat{\beta}_1 \left( \frac{1}{12} educ_{months} \right) \\
+&= \hat{\beta}_0 + \left( \frac{\hat{\beta}_1}{12} \right) educ_{months}
+\end{align*}
+
+## Why use different functional forms?
+
+So far, we've assumed a linear relationship: a one-unit change in $x$ leads to the same change in $y$, regardless of the starting value of $x$.
+
+But often, relationships are not linear. We use transformations (like logarithms) to:
+
+1.  **Model Non-Linear Relationships**: Capture effects that are proportional or diminishing.
+2.  **Change the Interpretation**: Analyze percentage changes (elasticities) instead of unit changes.
+3.  **Improve Statistical Properties**: Stabilize the variance of the error term or make the distribution of a variable more symmetric.
+
+The most common transformations involve the natural logarithm, $\log()$.
+
+## The Log-Level Model: $\log(y)$ on $x$
+
+Here, we transform the dependent variable $y$: $\log(y) = \beta_0 + \beta_1 x + u$
+
+**Interpretation of $\beta_1$**: A one-unit increase in $x$ is associated with a $(100 \times \beta_1)\%$ change in $y$.
+
+- To see this, take the derivative of the equation with respect to $x$:
+  $$ \frac{d(\log(y))}{dx} = \beta_1 $$
+
+- Recall the calculus rule/approximation: for small changes, $\Delta \log(y) \approx \frac{\Delta y}{y}$.
+- For a one-unit change in $x$ ($\Delta x = 1$):
+  $$ \beta_1 = \frac{\Delta \log(y)}{\Delta x} \approx \frac{\Delta y / y}{1} $$
+
+## Example
+
+- So, $\beta_1$ is the *proportional* change in $y$. We multiply by 100 to get a percentage.
+
+**Example**: If $\widehat{\log(wage)} = 1.5 + 0.08 \times educ$:
+
+- An additional year of education is associated with an approximate $0.08 \times 100 = 8\%$ increase in wage.
+
+## The Level-Log Model: $y$ on $\log(x)$
+
+Here, we transform the independent variable $x$: $y = \beta_0 + \beta_1 \log(x) + u$
+
+**Interpretation of $\beta_1$**: A 1% increase in $x$ is associated with a $(\beta_1 / 100)$ unit change in $y$.
+
+- To see this, take the derivative of the equation with respect to $\log(x)$:
+  $$ \frac{dy}{d(\log(x))} = \beta_1 $$
+  
+- A change in $\log(x)$ is approximately the proportional change in $x$: $\Delta \log(x) \approx \frac{\Delta x}{x}$.
+  - So, $\Delta y \approx \beta_1 \Delta(\log(x)) \approx \beta_1 \frac{\Delta x}{x}$.
+  - If we consider a 1% change in $x$, then $\frac{\Delta x}{x} = 0.01$.
+  - The resulting change in $y$ is: $\Delta y \approx \beta_1 \times (0.01) = \frac{\beta_1}{100}$.
+
+## Example
+
+
+**Example**: `price = 200 + 75 * log(sqft)` for house prices.
+
+- A 1% increase in square footage is associated with a $75/100 = \$0.75$ increase in price.
+
+## The Log-Log Model: $\log(y)$ on $\log(x)$
+
+Here, we transform both variables. This model is very common in economics because $\beta_1$ is an **elasticity**: $\log(y) = \beta_0 + \beta_1 \log(x) + u$
+
+**Interpretation of $\beta_1$**: A 1% increase in $x$ is associated with a $\beta_1\%$ change in $y$.
+
+To see this, from the model, we can write:
+  $$ \beta_1 = \frac{d(\log(y))}{d(\log(x))} $$
+  
+- Using the same approximations as before:
+  $$ \beta_1 \approx \frac{\Delta y / y}{\Delta x / x} = \frac{\%\Delta y}{\%\Delta x} $$
+  
+- This is the definition of elasticity. If we set the percentage change in $x$ to 1% ($\%\Delta x=1$), then the percentage change in $y$ is just $\beta_1$.
+
+## Example
+
+**Example**: `log(sales) = 4.8 - 1.2 * log(price)` for a product.
+
+- A 1% increase in price is associated with a 1.2% decrease in sales. The price elasticity of demand is -1.2.
+
+## Other Forms: Polynomials
+
+We can also add polynomial terms (like $x^2$, $x^3$, etc.) to capture more complex non-linear patterns, such as diminishing returns.
+
+**Model (Quadratic):** $y = \beta_0 + \beta_1 x + \beta_2 x^2 + u$
+
+**Interpretation**: The effect of a change in $x$ on $y$ now *depends on the level of $x$*.
+
+- The marginal effect of $x$ on $y$ is the derivative with respect to $x$:
+  $$ \frac{\Delta y}{\Delta x} \approx \frac{dy}{dx} = \beta_1 + 2 \beta_2 x $$
+  
+- A one-unit change in $x$ is associated with a change in $y$ of approximately $\beta_1 + 2 \beta_2 x$.
+
+## Example
+
+**Example**: $\widehat{wage} = 3.50 + 0.60 \times educ - 0.02 \times educ^2$.
+
+- The effect of the *first* year of education ($x=0 \to x=1$) is about $\$0.60$.
+- The effect of the *13th* year of education ($x=12 \to x=13$) is:
+  $0.60 + 2(-0.02)(12) = 0.60 - 0.48 = \$0.12$.
+- This captures the *diminishing returns* to education on wage.
+
+## Summary of Interpretations
+
+| Model Name | Equation | Interpretation of $\hat{\beta}_1$ |
+| :--- | :--- | :--- |
+| **Level-Level** | $y = \beta_0 + \beta_1 x$ | A 1-unit change in $x$ leads to a $\hat{\beta}_1$ unit change in $y$. |
+| **Log-Level** | $\log(y) = \beta_0 + \beta_1 x$ | A 1-unit change in $x$ leads to a $(100 \times \hat{\beta}_1)\%$ change in $y$. |
+| **Level-Log** | $y = \beta_0 + \beta_1 \log(x)$ | A 1% change in $x$ leads to a $(\hat{\beta}_1/100)$ unit change in $y$. |
+| **Log-Log** | $\log(y) = \beta_0 + \beta_1 \log(x)$ | A 1% change in $x$ leads to a $\hat{\beta}_1\%$ change in $y$. |
 
 ## 2.5 Goodness-of-Fit
 
@@ -241,6 +356,45 @@ We can partition the total variation in $y$ into two parts: the part explained b
 
 It is a mathematical property that **SST = SSE + SSR**.
 
+## Goodness-of-Fit Visualization
+
+```{r echo=F, out.width=250}
+# Create example data and linear model
+set.seed(123)
+x <- 1:20
+y <- 2*x + rnorm(20, sd = 8)
+df <- data.frame(x, y)
+model <- lm(y ~ x, data = df)
+df$y_pred <- predict(model)
+mean_y <- mean(y)
+
+# Visualization
+ggplot(df, aes(x = x)) +
+  geom_point(aes(y = y, color = "Observed data"), size = 3) +
+  geom_line(aes(y = y_pred, color = "Regression line"), linewidth = 1) +
+  geom_hline(aes(yintercept = mean_y, linetype = "Mean of Y"), color = "black") +
+  geom_segment(aes(xend = x, y = y, yend = y_pred, color = "Unexplained (SSR)"), 
+               show.legend = TRUE) +
+  geom_segment(aes(xend = x, y = mean_y, yend = y_pred, color = "Explained (SSE)"), 
+               show.legend = TRUE) +
+  geom_segment(aes(xend = x, y = y, yend = mean_y, linetype = "Total (SST)"), 
+               color = "black", linetype = "dotted", show.legend = TRUE) +
+  scale_color_manual(name = "Components",
+                     values = c("Observed data" = "black",
+                               "Regression line" = "blue",
+                               "Unexplained (SSR)" = "red",
+                               "Explained (SSE)" = "green")) +
+  scale_linetype_manual(name = "Variation",
+                        values = c("Mean of Y" = "dashed",
+                                  "Total (SST)" = "dotted")) +
+  labs(title = "Goodness-of-Fit Visualization",
+       subtitle = "SST (Total) = SSE (Explained) + SSR (Residuals)",
+       x = "X", y = "Y") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.box = "vertical")
+```
+
 ## Goodness-of-Fit: R-squared and SER
 
 ### R-squared ($R^2$)
@@ -251,9 +405,9 @@ $$
 R^2 = \frac{SSE}{SST} = 1 - \frac{SSR}{SST}
 $$
 
-*   $R^2$ is always between 0 and 1.
-*   A higher $R^2$ means the model fits the data better in-sample.
-*   **Caution:** A high $R^2$ is not the ultimate goal of econometrics! We care more about getting an unbiased estimate of the causal effect $\beta_1$.
+- $R^2$ is always between 0 and 1.
+- A higher $R^2$ means the model fits the data better in-sample.
+- **Caution:** A high $R^2$ is not the ultimate goal of econometrics! We care more about getting an unbiased estimate of the causal effect $\beta_1$.
 
 ## Standard Error of the Regression (SER)
 
@@ -262,8 +416,9 @@ The **SER** is an estimator of the standard deviation of the population error te
 $$
 \hat{\sigma} = SER = \sqrt{\frac{SSR}{n-2}}
 $$
-*   We divide by $n-2$ (degrees of freedom) because we had to estimate two parameters ($\beta_0, \beta_1$) to get the residuals.
-*   SER is measured in the same units as $y$. A smaller SER is better.
+
+- We divide by $n-2$ (degrees of freedom) because we had to estimate two parameters ($\beta_0, \beta_1$) to get the residuals.
+- SER is measured in the same units as $y$. A smaller SER is better.
 
 ## 2.6 Understanding Statistical Output
 
@@ -287,9 +442,8 @@ summary(slr_model)
 - `Residual standard error`: This is the **SER** (`r round(summary(slr_model)$sigma, 2)`).
 - `Multiple R-squared`: This is our **R-squared** (`r round(summary(slr_model)$r.squared, 2)`). The model explains about 46% of the variation in wages.
 
----
 
-## 3. The Classical Assumptions (for SLR)
+## 3. The Classical Assumptions
 
 For our OLS estimates to have desirable statistical properties, certain assumptions must hold. These are the **Gauss-Markov Assumptions**.
 
@@ -299,24 +453,23 @@ For our OLS estimates to have desirable statistical properties, certain assumpti
 - Assumption 4: Zero Conditional Mean. $E(u|x) = 0$. The average value of the unobserved factors is unrelated to the value of $x$.
 - Assumption 5: Homoskedasticity. $Var(u|x) = \sigma^2$. The variance of the error term is constant for all values of $x$.
 
----
-
 ## 3.2 The Crucial Assumption: Zero Conditional Mean
 
 $$
 E(u|x) = 0
 $$
 
-This is the most important assumption for establishing **causality**. It means that the explanatory variable ($x$) must not be correlated with any of the unobserved factors ($u$) that affect the dependent variable ($y$).
+This is the most important assumption for establishing **causality**. 
 
-**Example:** `wage` on `educ`.
-*   $y = wage$
-*   $x = educ$
-*   $u$ = unobserved factors like innate ability, family background, motivation...
+  - It means that the explanatory variable ($x$) must not be correlated with any of the unobserved factors ($u$) that affect the dependent variable ($y$).
 
-Is it likely that $E(u|educ)=0$?
-*   Probably not. Innate ability ($u$) is likely correlated with education ($x$). People with higher ability may find it easier to get more education.
-*   If $Cov(educ, ability) > 0$, then our OLS estimate $\hat{\beta}_1$ will be biased upwards. It will capture the effect of education *and* the effect of ability. This is **Omitted Variable Bias**.
+**Example:** $y = wage$, $x = educ$, $u$ = unobserved factors like innate ability, family background, motivation
+
+Is it likely that $E(u|educ)=0$? Probably not. 
+
+  - Innate ability ($u$) is likely correlated with education ($x$). People with higher ability may find it easier to get more education.
+
+If $Cov(educ, ability) > 0$, then our OLS estimate $\hat{\beta}_1$ will be biased upwards. It will capture the effect of education *and* the effect of ability. This is **Omitted Variable Bias**.
 
 ---
 
@@ -329,10 +482,12 @@ $$
 $$
 
 **What does this mean?**
-*   Unbiasedness is a property of the *procedure* of OLS estimation.
-*   If we could draw many, many random samples from the population and calculate $\hat{\beta}_1$ for each sample, the *average* of all these estimates would be equal to the true population parameter, $\beta_1$.
-*   Our estimate from any single sample might be higher or lower than the true value, but on average, we get it right.
-*   This property relies critically on the Zero Conditional Mean assumption (SLR.4). If SLR.4 fails, OLS is biased.
+
+  - Unbiasedness is a property of the *procedure* of OLS estimation.
+    - If we could draw many, many random samples from the population and calculate $\hat{\beta}_1$ for each sample, the *average* of all these estimates would be equal to the true population parameter, $\beta_1$.
+    
+- Our estimate from any single sample might be higher or lower than the true value, but on average, we get it right.
+  - This property relies critically on the Zero Conditional Mean assumption (SLR.4). If SLR.4 fails, OLS is biased.
 
 
 ## Variance of OLS Estimators
@@ -345,28 +500,28 @@ $$
 Var(\hat{\beta}_1) = \frac{\sigma^2}{\sum_{i=1}^n (x_i - \bar{x})^2} = \frac{\sigma^2}{SST_x}
 $$
 
+Consult the appendix for a derivation.
+
+## Determinants of the Variance
+
 What determines the precision of our estimate?
 
 1.  **The error variance, $\sigma^2$**: More "noise" in the relationship (larger $\sigma^2$) leads to a larger variance for $\hat{\beta}_1$.
 2.  **The total sample variation in x, $SST_x$**: More variation in our explanatory variable ($x$) leads to a *smaller* variance for $\hat{\beta}_1$. We learn more about the slope when our $x$ values are more spread out.
 3.  **The sample size, n**: A larger sample size generally increases $SST_x$, which *decreases* the variance of $\hat{\beta}_1$.
 
----
-
 ## 4. Introduction to Multiple Linear Regression
 
 Simple Linear Regression is often inadequate because we can't control for other factors that might be important. This leads to omitted variable bias.
 
-The solution is to include those other factors in the model. This is **Multiple Linear Regression (MLR)**.
+The solution is to include those other factors in the model. This is **Multiple Linear Regression (MLR)**:
 
-**The Model:**
 $$
 y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \beta_k x_k + u
 $$
 
 Now we have $k$ explanatory variables.
 
-**Interpretation of Coefficients:**
 - $\beta_j$ is the effect of a one-unit change in $x_j$ on $y$, **holding all other explanatory variables ($x_1, ..., x_{j-1}, x_{j+1}, ... x_k$) constant.**
 - This is the concept of *ceteris paribus* (all else equal). MLR allows us to isolate the effect of one variable while mathematically controlling for the others.
 
@@ -381,11 +536,13 @@ The variance of a coefficient $\hat{\beta}_j$ now depends on **multicollinearity
 $$
 Var(\hat{\beta}_j) = \frac{\sigma^2}{SST_j (1 - R_j^2)}
 $$
+
+\footnotesize
 - $SST_j$ is the total variation in $x_j$.
 - $R_j^2$ is the R-squared from a regression of $x_j$ on all other explanatory variables in the model.
 - If $x_j$ is highly correlated with other $x$'s, $R_j^2$ will be close to 1, making the denominator small and $Var(\hat{\beta}_j)$ very large. This is **imperfect multicollinearity**.
 - The **no perfect collinearity** assumption for MLR means that no $x_j$ can be a perfect linear combination of the others (i.e., $R_j^2 \neq 1$).
-
+\normalsize
 
 ## Heuristic Derivation of the t-statistic
 
@@ -416,11 +573,10 @@ $$
 t = \frac{\hat{\beta}_j - \beta_j}{se(\hat{\beta}_j)} \sim t_{n-k-1}
 $$
 
-*   The **t-distribution** looks very similar to the normal distribution but has "fatter tails," reflecting the added uncertainty from estimating $\sigma^2$.
-*   It is characterized by its **degrees of freedom (df)**, which for MLR is $df = n - k - 1$.
-    *   $n$ = sample size
-    *   $k+1$ = number of estimated parameters (including the intercept)
-*   As the sample size ($n$) gets large, the t-distribution converges to the standard normal distribution.
+- The **t-distribution** looks very similar to the normal distribution but has "fatter tails," reflecting the added uncertainty from estimating $\sigma^2$.
+- It is characterized by its **degrees of freedom (df)**, which for MLR is $df = n - k - 1$.
+  - $n$ = sample size, $k+1$ = number of estimated parameters (including the intercept)
+- As the sample size ($n$) gets large, the t-distribution converges to the standard normal distribution.
 
 ---
 
@@ -433,9 +589,95 @@ mlr_model <- lm(wage ~ educ + exper, data=dat_mlr)
 summary(mlr_model)
 ```
 
+## Interpretation with Controls
+
 **Interpretation:**
+
 - educ: $\hat{\beta}_1 \approx 1.12$: Holding experience constant, one more year of education is associated with a $1.12/hr increase in wages, on average.
 - exper: $\hat{\beta}_2 \approx 0.19$: Holding education constant, one more year of experience is associated with a $0.19/hr increase in wages, on average.
-*   The R-squared increased, suggesting this model explains more variation in wages.
-*   The t-statistics tell us whether these coefficients are statistically distinguishable from zero.
+- The R-squared increased, suggesting this model explains more variation in wages.
+- The t-statistics tell us whether these coefficients are statistically distinguishable from zero.
 
+
+## Appendix: Derivation of Variance of OLS Slope Estimator
+
+Consider the univariate linear regression model:
+
+$$
+y_i = \alpha + \beta x_i + \epsilon_i \quad \text{where} \quad \epsilon_i \sim \text{iid } N(0, \sigma^2)
+$$
+
+The OLS estimator for the slope coefficient $\beta$ is:
+
+$$
+\hat{\beta} = \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^n (x_i - \bar{x})^2} = \frac{S_{xy}}{S_{xx}}
+$$
+
+where $S_{xx} = \sum (x_i - \bar{x})^2$ and $S_{xy} = \sum (x_i - \bar{x})(y_i - \bar{y})$.
+
+## Rewriting the Estimator
+
+Substitute $y_i = \alpha + \beta x_i + \epsilon_i$ into the estimator:
+
+\begin{align*}
+\hat{\beta} &= \frac{\sum (x_i - \bar{x})(\alpha + \beta x_i + \epsilon_i - \bar{y})}{S_{xx}} \\
+&= \beta + \frac{\sum (x_i - \bar{x})\epsilon_i}{S_{xx}}
+\end{align*}
+
+Since $\text{Var}(\hat{\beta}) = \text{Var}\left(\beta + \frac{\sum (x_i - \bar{x})\epsilon_i}{S_{xx}}\right) = \text{Var}\left(\frac{\sum (x_i - \bar{x})\epsilon_i}{S_{xx}}\right)$
+
+## Variance Derivation
+
+Given that $\epsilon_i$ are iid with $\text{Var}(\epsilon_i) = \sigma^2$:
+
+\begin{align*}
+\text{Var}(\hat{\beta}) &= \frac{1}{S_{xx}^2} \text{Var}\left(\sum (x_i - \bar{x})\epsilon_i\right) \\
+&= \frac{1}{S_{xx}^2} \sum (x_i - \bar{x})^2 \text{Var}(\epsilon_i) \quad \text{(by indep., variance of sum = sum of variances)} \\
+&= \frac{\sigma^2}{S_{xx}^2} \sum (x_i - \bar{x})^2 \quad \text{(Var = $\sigma^2$, take constant out of sum)} \\
+&= \frac{\sigma^2}{S_{xx}}
+\end{align*}
+
+The variance of the OLS slope estimator is $\text{Var}(\hat{\beta}) = \frac{\sigma^2}{\sum_{i=1}^n (x_i - \bar{x})^2}$
+
+## Linearity and Normality of \(\hat{\beta}\)
+
+Since \(\hat{\beta}\) is a linear combination of the \(\epsilon_i\) (which are normally distributed), \(\hat{\beta}\) is also normally distributed:
+
+$$
+\hat{\beta} \sim N\left(\beta, \text{Var}(\hat{\beta})\right)
+$$
+
+From the previous derivation, we know:
+
+$$
+\text{Var}(\hat{\beta}) = \frac{\sigma^2}{S_{xx}}
+$$
+
+Thus, the **sampling distribution of \(\hat{\beta}\)** is:
+
+$$
+\hat{\beta} \sim N\left(\beta, \frac{\sigma^2}{\sum (x_i - \bar{x})^2}\right)
+$$
+
+Or equivalently:
+
+$$
+\hat{\beta} \sim N\left(\beta, \frac{\sigma^2}{S_{xx}}\right)
+$$
+
+## Standardized Distribution
+
+If we standardize \(\hat{\beta}\), we obtain a standard normal distribution:
+
+$$
+\frac{\hat{\beta} - \beta}{\sqrt{\text{Var}(\hat{\beta})}} = \frac{\hat{\beta} - \beta}{\sigma / \sqrt{S_{xx}}} \sim N(0,1)
+$$
+
+**Key Implications**:
+
+1. **Unbiasedness**: The expected value of \(\hat{\beta}\) is the true parameter \(\beta\).
+2. **Normality**: The distribution is exactly normal when errors are normal.
+3. **Variance decreases with**:
+   - Larger sample size \(n\) (generally increases \(S_{xx}\)).
+   - Greater spread in \(x_i\) (increases \(S_{xx}\)).
+   - Smaller error variance \(\sigma^2\).
