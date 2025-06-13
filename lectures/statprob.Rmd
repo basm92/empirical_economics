@@ -371,6 +371,114 @@ Historically, probabilities for the standard normal distribution were found usin
 
 So, there is about a **21.2%** chance of experiencing a negative return.
 
+# Conditional Density
+
+## Conditional Probability
+
+Conditional probability is about how the probability of an event **A** changes when we know an event **B** has occurred.
+
+*   **Discrete Case:** We update probabilities for specific outcomes.
+    $P(A|B) = \frac{P(A \cap B)}{P(B)}$
+
+*   **Continuous Case:** What if we want to condition on a continuous random variable `Y` taking a specific value `y`?
+    Since $P(Y=y) = 0$ for any continuous variable, the formula above is undefined.
+
+We need to shift our thinking from the probability of *events* to the *probability density functions (PDFs)* of random variables.
+
+
+## Conditional Probability Density Functions (PDFs)
+
+### Definition
+
+The conditional PDF of a random variable `X` given that `Y=y` is defined as the ratio of the joint PDF to the marginal PDF of Y.
+
+$$ f_{X|Y}(x|y) = \frac{f_{X,Y}(x,y)}{f_Y(y)} $$
+
+Provided that the marginal density $f_Y(y) > 0$.
+
+*   $f_{X,Y}(x,y)$: The **joint PDF**, describing the probability density of `(X, Y)` occurring together.
+*   $f_Y(y) = \int_{-\infty}^{\infty} f_{X,Y}(x,y) \, dx$: The **marginal PDF** of `Y`, found by "integrating out" `X`. It represents the distribution of `Y` on its own.
+
+## Intuition: Slicing the Joint Distribution
+
+Think of the joint PDF $f_{X,Y}(x,y)$ as a 3D surface.
+
+1.  **Fix a value** `y` for the variable Y. This is like taking a 2D "slice" of the 3D surface at that `y`.
+2.  The shape of this slice gives the relative likelihood of `X`'s values, *given* that `Y=y`.
+3.  **Normalize the slice:** The area under this slice might not be 1. Dividing by $f_Y(y)$ (the area of the slice) scales it to become a valid probability density function.
+
+This normalized slice *is* the conditional PDF, $f_{X|Y}(x|y)$.
+
+## Tbd: Visualization of this
+
+hi
+
+
+## Conditional Expectation
+
+### The Average of the Conditional Distribution
+
+Conditional expectation, $E[X | Y=y]$, is simply the expected value (the mean) of `X` calculated using its **conditional distribution**. It's the "center of mass" of that conditional slice we just discussed.
+
+### Formal Definitions
+
+- Discrete case: if `X` and `Y` are discrete random variables, the expectation of `X` given `Y=y` is a weighted average using conditional probabilities:
+
+$$ E[X | Y=y] = \sum_{x} x \cdot P(X=x | Y=y) $$
+
+- Continuous case: if `X` and `Y` are continuous random variables, the expectation is an integral using the conditional PDF:
+
+$$ E[X | Y=y] = \int_{-\infty}^{\infty} x \cdot f_{X|Y}(x|y) \, dx $$
+
+This gives us the average value we'd expect for `X` if we repeatedly sampled from experiments where `Y` was known to be `y`.
+
+## A Crucial Distinction: $E[X|Y=y]$ vs. $E[X|Y]$
+
+### $E[X|Y=y]$ is a Function
+
+The expression $E[X|Y=y]$ produces a **value** that depends on the specific, fixed `y` we conditioned on. We can think of this as a function of `y`.
+
+Let's define a function $g(y)$:
+$$ g(y) = E[X|Y=y] $$
+
+*   If we know `Y=2`, we calculate $g(2) = E[X|Y=2]$.
+*   If we know `Y=5`, we calculate $g(5) = E[X|Y=5]$.
+
+***
+
+### $E[X|Y]$ is a Random Variable
+
+The notation $E[X|Y]$ (without specifying a value for Y) represents a **new random variable**.
+
+*   It is the random variable you get by taking the function $g(y)$ and plugging in the *random variable* `Y` itself.
+    $$ E[X|Y] = g(Y) $$
+*   The value of this new random variable is not known until the value of `Y` is revealed.
+
+**Example:** Suppose we find that the expected height of a child `X` given the mother's height `Y` is $E[X|Y=y] = 40 + 0.8y$.
+*   $g(y) = 40 + 0.8y$ is the function.
+*   $E[X|Y] = 40 + 0.8Y$ is a random variable whose outcome depends on the randomly selected mother's height `Y`.
+
+## Slide 5: The Law of Total Expectation (The Tower Property)
+
+### Tying It All Together
+
+This powerful law connects unconditional and conditional expectations by using the distinction we just made. It states that the overall expected value of `X` is the expected value of the *random variable* $E[X|Y]$.
+
+$$ E[X] = E[E[X|Y]] $$
+
+### Intuition: "Averaging the Averages"
+
+This means we can find the overall average of `X` in two steps:
+1.  First, find the conditional average of `X` for each possible value of `Y`. This gives you the function $g(y) = E[X|Y=y]$.
+2.  Then, find the expected value of that function with respect to the distribution of `Y`. This is what $E[g(Y)]$ means.
+
+***
+
+**Example:** Suppose a student's score `X` depends on their hours of study `Y`.
+*   If they study `Y=0` hours, their expected score is 50.
+*   If they study `Y=10` hours, their expected score is 90.
+*   To find the overall average score, we would need to know the distribution of study hours (the distribution of `Y`) and then average these conditional expectations over that distribution. This is the essence of the Law of Total Expectation.
+
 # 7. Covariance and Correlation
 
 ## Covariance
