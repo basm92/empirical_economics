@@ -434,50 +434,28 @@ This gives us the average value we'd expect for `X` if we repeatedly sampled fro
 
 ## A Crucial Distinction: $E[X|Y=y]$ vs. $E[X|Y]$
 
-### $E[X|Y=y]$ is a Function
+- $E[X|Y=y]$ is a Function
 
 The expression $E[X|Y=y]$ produces a **value** that depends on the specific, fixed `y` we conditioned on. We can think of this as a function of `y`.
 
 Let's define a function $g(y)$:
 $$ g(y) = E[X|Y=y] $$
 
-*   If we know `Y=2`, we calculate $g(2) = E[X|Y=2]$.
-*   If we know `Y=5`, we calculate $g(5) = E[X|Y=5]$.
+- If we know `Y=2`, we calculate $g(2) = E[X|Y=2]$.
+- If we know `Y=5`, we calculate $g(5) = E[X|Y=5]$.
 
-***
-
-### $E[X|Y]$ is a Random Variable
+## $E[X|Y]$ is a Random Variable
 
 The notation $E[X|Y]$ (without specifying a value for Y) represents a **new random variable**.
 
-*   It is the random variable you get by taking the function $g(y)$ and plugging in the *random variable* `Y` itself.
+- It is the random variable you get by taking the function $g(y)$ and plugging in the *random variable* `Y` itself.
     $$ E[X|Y] = g(Y) $$
-*   The value of this new random variable is not known until the value of `Y` is revealed.
+- The value of this new random variable is not known until the value of `Y` is revealed.
 
 **Example:** Suppose we find that the expected height of a child `X` given the mother's height `Y` is $E[X|Y=y] = 40 + 0.8y$.
-*   $g(y) = 40 + 0.8y$ is the function.
-*   $E[X|Y] = 40 + 0.8Y$ is a random variable whose outcome depends on the randomly selected mother's height `Y`.
 
-## Slide 5: The Law of Total Expectation (The Tower Property)
-
-### Tying It All Together
-
-This powerful law connects unconditional and conditional expectations by using the distinction we just made. It states that the overall expected value of `X` is the expected value of the *random variable* $E[X|Y]$.
-
-$$ E[X] = E[E[X|Y]] $$
-
-### Intuition: "Averaging the Averages"
-
-This means we can find the overall average of `X` in two steps:
-1.  First, find the conditional average of `X` for each possible value of `Y`. This gives you the function $g(y) = E[X|Y=y]$.
-2.  Then, find the expected value of that function with respect to the distribution of `Y`. This is what $E[g(Y)]$ means.
-
-***
-
-**Example:** Suppose a student's score `X` depends on their hours of study `Y`.
-*   If they study `Y=0` hours, their expected score is 50.
-*   If they study `Y=10` hours, their expected score is 90.
-*   To find the overall average score, we would need to know the distribution of study hours (the distribution of `Y`) and then average these conditional expectations over that distribution. This is the essence of the Law of Total Expectation.
+- $g(y) = 40 + 0.8y$ is the function.
+- $E[X|Y] = 40 + 0.8Y$ is a random variable whose outcome depends on the randomly selected mother's height `Y`.
 
 # 7. Covariance and Correlation
 
