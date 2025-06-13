@@ -85,8 +85,8 @@ E(y | x) = \beta_0 + \beta_1 x
 $$
 
 *   $E(y | x)$ is the **expected value (average) of y, given a value of x**.
-*   $\beta_0$ (beta-nought) is the **population intercept**.
-*   $\beta_1$ (beta-one) is the **population slope**. These are unknown constants (parameters) that we want to estimate.
+*   $\beta_0$ is the **population intercept**.
+*   $\beta_1$ is the **population slope**. These are unknown constants (parameters) that we want to estimate.
 
 The PRF represents the true, but unknown, relationship in the population.
 
@@ -208,8 +208,8 @@ So our estimated SRF is: $\widehat{wage} = `r round(coef(slr_model)[1], 2)` + `r
 
 **Interpretation:**
 
-- Slope ($\hat{\beta}_1 \approx `r round(coef(slr_model)[2], 2)`$): "For each additional year of education, we estimate the hourly wage to increase by **$1.25**, on average." This is the key policy parameter.
-- Intercept ($\hat{\beta}_0 \approx `r round(coef(slr_model)[1], 2)`$): "For an individual with zero years of education, we predict an hourly wage of **$0.84**."
+- Slope ($\hat{\beta}_1 \approx `r round(coef(slr_model)[2], 2)`$): "For each additional year of education, we estimate the hourly wage to increase by **$1.15**, on average." This is the key policy parameter.
+- Intercept ($\hat{\beta}_0 \approx `r round(coef(slr_model)[1], 2)`$): "For an individual with zero years of education, we predict an hourly wage of **$1.79**."
 
 ## 2.4 Units and Functional Form
 
@@ -420,82 +420,6 @@ $$
 - We divide by $n-2$ (degrees of freedom) because we had to estimate two parameters ($\beta_0, \beta_1$) to get the residuals.
 - SER is measured in the same units as $y$. A smaller SER is better.
 
-Of course. Here are a few slides on hypothesis testing in linear regression using t-tests and F-tests, formatted in RMarkdown.
-
----
-
-## Hypothesis Testing in Regression
-
-Once we've estimated our model, $\widehat{y} = \hat{\beta}_0 + \hat{\beta}_1 x$, we need to ask: **Is the relationship we found statistically significant?**
-
--   Our estimates $\hat{\beta}_0$ and $\hat{\beta}_1$ are based on a *sample* of data. They are subject to sampling variability.
--   It's possible that the true relationship in the *population* is zero ($\beta_1 = 0$), and we just found a non-zero $\hat{\beta}_1$ by random chance.
-
-Hypothesis testing allows us to use our sample evidence to make a probabilistic statement about the true, unknown population parameters.
-
-We will focus on two key tests:
-1.  **The t-test**: For testing the significance of a *single* coefficient.
-2.  **The F-test**: For testing the *joint* significance of multiple coefficients or the model as a whole.
-
----
-
-## 3.1 The t-Test: Significance of a Single Coefficient
-
-The t-test is our tool for testing a hypothesis about a single coefficient. The most common hypothesis is that a variable has no effect on the dependent variable.
-
-**Hypotheses for a single coefficient $\beta_j$**:
--   **Null Hypothesis ($H_0$)**: The variable has no effect.
-    $$ H_0: \beta_j = 0 $$
--   **Alternative Hypothesis ($H_A$)**: The variable does have an effect.
-    $$ H_A: \beta_j \neq 0 $$
-
-## t-statistic 
-
-**The t-statistic**: We calculate a t-statistic, which measures how many standard errors our estimated coefficient is away from the hypothesized value (zero).
-$$ t = \frac{\text{Estimate} - \text{Hypothesized Value}}{\text{Standard Error}} = \frac{\hat{\beta}_j - 0}{se(\hat{\beta}_j)} $$
-
-**Decision Rule**:
--   **p-value**: Most software reports a p-value. If the p-value is less than our chosen significance level (e.g., $\alpha = 0.05$), we **reject the null hypothesis**. This means we have statistically significant evidence that $x_j$ affects $y$.
--   **Rule of Thumb**: For large samples, a t-statistic with an absolute value greater than 2 (or more precisely, 1.96) is typically significant at the 5% level.
-
-
-## 3.1 The F-Test: Testing Joint Significance
-
-The F-test is used to test hypotheses about **multiple** coefficients at the same time. Its most common use is to test the **overall significance** of the regression model.
-
-**Overall Significance F-Test**:
-This tests whether *any* of our independent variables have an effect on the dependent variable.
-
--   **Model**: $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_k x_k + u$
--   **Null Hypothesis ($H_0$)**: *None* of the independent variables have an effect on $y$. The model has no explanatory power.
-    $$ H_0: \beta_1 = \beta_2 = \dots = \beta_k = 0 $$
--   **Alternative Hypothesis ($H_A$)**: *At least one* of the coefficients is not zero. The model has some explanatory power.
-    $$ H_A: \text{At least one } \beta_j \neq 0 \text{ for } j=1, \dots, k $$
-
-## F statistic
-
-**The F-statistic**:
-The F-statistic is calculated by comparing the fit of our full model (the 'unrestricted' model) to the fit of a model with no independent variables (the 'restricted' model, where we force the null hypothesis to be true).
-
--   A **large F-statistic** suggests that our variables jointly explain a significant amount of the variation in $y$.
--   Like the t-test, we typically look at the **p-value** for the F-statistic. If $p < 0.05$, we reject the null and conclude our model is jointly significant.
-
-## 3.1 t-test vs. F-test: A Summary
-
-It's crucial to understand when to use each test. A group of variables can be jointly significant (F-test) even if no single variable is individually significant (t-tests).
-
-\footnotesize
-
-| Feature | t-test | F-test |
-| :--- | :--- | :--- |
-| **Scope** | One coefficient at a time | Two or more coefficients at a time |
-| **Typical Use**| Is *this specific variable* significant? | Is this *group of variables* jointly significant? OR Is the *model as a whole* useful?|
-| **Null Hypothesis** | $H_0: \beta_j = 0$ | $H_0: \beta_1 = \beta_2 = \dots = 0$ |
-| **Test Statistic**| $t = \frac{\hat{\beta}_j}{se(\hat{\beta}_j)}$ | Compares Restricted vs. Unrestricted sum of squares |
-| **Key Question** | "Does education significantly affect wage, holding other factors constant?" | "Does a person's work experience, measured by `exper` and `exper^2`, jointly affect their wage?" |
-
-\normalsize
-
 ## 2.6 Understanding Statistical Output
 
 Let's look at the full output from R/Python/Stata for our simple regression.
@@ -604,21 +528,30 @@ Now we have $k$ explanatory variables.
 
 ## 4.1 OLS Estimation in MLR
 
-The principle is the same: we choose $\hat{\beta}_0, \hat{\beta}_1, ..., \hat{\beta}_k$ to minimize the Sum of Squared Residuals (SSR). The formulas are complex (usually done with matrix algebra) but are easily handled by software.
+The principle is the same: we choose $\hat{\beta}_0, \hat{\beta}_1, ..., \hat{\beta}_k$ to minimize the Sum of Squared Residuals (SSR). 
 
-### Variance of OLS Estimators in MLR
+The formulas are complex (usually done with matrix algebra) but are easily handled by software:
+
+  - `lm(y ~ x1 + x2, data=df)` in R
+  - `reg y x1 x2` in Stata
+  - Python:
+  
+```
+from sklearn.linear_model import LinearRegression
+LinearRegression().fit(X, y)
+```
+
+## Variance of OLS Estimators in MLR
 The variance of a coefficient $\hat{\beta}_j$ now depends on **multicollinearity** -- how correlated $x_j$ is with the *other* explanatory variables.
 
 $$
 Var(\hat{\beta}_j) = \frac{\sigma^2}{SST_j (1 - R_j^2)}
 $$
 
-\footnotesize
 - $SST_j$ is the total variation in $x_j$.
 - $R_j^2$ is the R-squared from a regression of $x_j$ on all other explanatory variables in the model.
 - If $x_j$ is highly correlated with other $x$'s, $R_j^2$ will be close to 1, making the denominator small and $Var(\hat{\beta}_j)$ very large. This is **imperfect multicollinearity**.
 - The **no perfect collinearity** assumption for MLR means that no $x_j$ can be a perfect linear combination of the others (i.e., $R_j^2 \neq 1$).
-\normalsize
 
 ## Heuristic Derivation of the t-statistic
 
@@ -633,9 +566,7 @@ If we knew the population standard deviation $sd(\hat{\beta}_j) = \sqrt{\frac{\s
 
 **The Problem:** We don't know the population error variance, $\sigma^2$.
 
-**The Solution:** We replace $\sigma^2$ with its sample estimate, $\hat{\sigma}^2 = \frac{SSR}{n-k-1}$.
-*   This gives us the **standard error** of the estimate, $se(\hat{\beta}_j)$.
-*   $se(\hat{\beta}_j) = \sqrt{\frac{\hat{\sigma}^2}{SST_j(1-R_j^2)}} = \frac{\hat{\sigma}}{\sqrt{SST_j(1-R_j^2)}}$
+**The Solution:** We replace $\sigma^2$ with its sample estimate, $\hat{\sigma}^2 = \frac{SSR}{n-k-1}$. This gives us the **standard error** of the estimate, $se(\hat{\beta}_j)$. $se(\hat{\beta}_j) = \sqrt{\frac{\hat{\sigma}^2}{SST_j(1-R_j^2)}} = \frac{\hat{\sigma}}{\sqrt{SST_j(1-R_j^2)}}$
 
 ---
 
@@ -654,7 +585,79 @@ $$
   - $n$ = sample size, $k+1$ = number of estimated parameters (including the intercept)
 - As the sample size ($n$) gets large, the t-distribution converges to the standard normal distribution.
 
+## Hypothesis Testing in Regression
+
+Once we've estimated our model, $\widehat{y} = \hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_k x_k$, we need to ask: **Is the relationship we found statistically significant?**
+
+-   Our estimates $\hat{\beta}_0$ and $\hat{\beta}_j$ are based on a *sample* of data. They are subject to sampling variability.
+-   It's possible that the true relationship in the *population* is zero ($\beta_1 = 0$), and we just found a non-zero $\hat{\beta}_1$ by random chance.
+
+Hypothesis testing allows us to use our sample evidence to make a probabilistic statement about the true, unknown population parameters.
+
+We will focus on two key tests:
+1.  **The t-test**: For testing the significance of a *single* coefficient.
+2.  **The F-test**: For testing the *joint* significance of multiple coefficients or the model as a whole.
+
 ---
+
+## 3.1 The t-Test: Significance of a Single Coefficient
+
+The t-test is our tool for testing a hypothesis about a single coefficient. The most common hypothesis is that a variable has no effect on the dependent variable.
+
+**Hypotheses for a single coefficient $\beta_j$**:
+
+- **Null Hypothesis ($H_0$)**: The variable has no effect.
+    $$ H_0: \beta_j = 0 $$
+- **Alternative Hypothesis ($H_A$)**: The variable does have an effect.
+    $$ H_A: \beta_j \neq 0 $$
+
+## t-statistic 
+
+**The t-statistic**: We calculate a t-statistic, which measures how many standard errors our estimated coefficient is away from the hypothesized value (zero).
+$$ t = \frac{\text{Estimate} - \text{Hypothesized Value}}{\text{Standard Error}} = \frac{\hat{\beta}_j - 0}{se(\hat{\beta}_j)} $$
+
+**Decision Rule**:
+
+-   **p-value**: Most software reports a p-value. If the p-value is less than our chosen significance level (e.g., $\alpha = 0.05$), we **reject the null hypothesis**. This means we have statistically significant evidence that $x_j$ affects $y$.
+-   **Rule of Thumb**: For large samples, a t-statistic with an absolute value greater than 2 (or more precisely, 1.96) is typically significant at the 5% level.
+
+
+## 3.1 The F-Test: Testing Joint Significance
+
+The F-test is used to test hypotheses about **multiple** coefficients at the same time. Its most common use is to test the **overall significance** of the regression model.
+
+**Overall Significance F-Test**:
+This tests whether *any* of our independent variables have an effect on the dependent variable.
+
+-   **Model**: $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_k x_k + u$
+-   **Null Hypothesis ($H_0$)**: *None* of the independent variables have an effect on $y$. The model has no explanatory power.
+    $$ H_0: \beta_1 = \beta_2 = \dots = \beta_k = 0 $$
+-   **Alternative Hypothesis ($H_A$)**: *At least one* of the coefficients is not zero. The model has some explanatory power.
+    $$ H_A: \text{At least one } \beta_j \neq 0 \text{ for } j=1, \dots, k $$
+
+## F statistic
+
+**The F-statistic**:
+The F-statistic is calculated by comparing the fit of our full model (the 'unrestricted' model) to the fit of a model with no independent variables (the 'restricted' model, where we force the null hypothesis to be true).
+
+-   A **large F-statistic** suggests that our variables jointly explain a significant amount of the variation in $y$.
+-   Like the t-test, we typically look at the **p-value** for the F-statistic. If $p < 0.05$, we reject the null and conclude our model is jointly significant.
+
+## 3.1 t-test vs. F-test: A Summary
+
+It's crucial to understand when to use each test. A group of variables can be jointly significant (F-test) even if no single variable is individually significant (t-tests).
+
+\footnotesize
+
+| Feature | t-test | F-test |
+| :--- | :--- | :--- |
+| **Scope** | One coefficient at a time | Two or more coefficients at a time |
+| **Typical Use**| Is *this specific variable* significant? | Is this *group of variables* jointly significant? OR Is the *model as a whole* useful?|
+| **Null Hypothesis** | $H_0: \beta_j = 0$ | $H_0: \beta_1 = \beta_2 = \dots = 0$ |
+| **Test Statistic**| $t = \frac{\hat{\beta}_j}{se(\hat{\beta}_j)}$ | Compares Restricted vs. Unrestricted sum of squares |
+| **Key Question** | "Does education significantly affect wage, holding other factors constant?" | "Does a person's work experience, measured by `exper` and `exper^2`, jointly affect their wage?" |
+
+\normalsize
 
 ## MLR Example: Wage, Education, and Experience
 
